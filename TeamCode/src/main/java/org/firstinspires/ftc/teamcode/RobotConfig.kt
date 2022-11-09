@@ -57,7 +57,7 @@ class RobotConfig(hwMap: HardwareMap?) {
 
         val WHEEL_DIAMETER = 96.0 / 1000.0
 
-        val initialWheelPosition = FL.currentPosition
+        val initialWheelPosition = FR.currentPosition
 
         val TICKS_PER_METER = TICKS_PER_REV / (WHEEL_DIAMETER * Math.PI)
 
@@ -78,8 +78,8 @@ class RobotConfig(hwMap: HardwareMap?) {
 
         val timer: ElapsedTime = ElapsedTime()
 
-        while (abs(FL.currentPosition - initialWheelPosition) < abs(target)) {
-            val error = target - (FL.currentPosition - initialWheelPosition)
+        while (abs(FR.currentPosition - initialWheelPosition) < abs(target)) {
+            val error = target - (FR.currentPosition - initialWheelPosition)
 
             val errorChange = error - lastError
 
@@ -102,22 +102,18 @@ class RobotConfig(hwMap: HardwareMap?) {
 
             val output = (Kp * error) + (Ki * integralSum) + (Kd * derivative)
 
-                when (direction) {
-                    Direction.FORWARD -> drive(output, 0.0, 0.0)
-                    Direction.BACKWARD -> drive(-output, 0.0, 0.0)
-                    Direction.LEFT -> drive(0.0, 0.0, output)
-                    Direction.RIGHT -> drive(0.0, 0.0, -output)
-                }
+            when (direction) {
+                Direction.FORWARD -> drive(output, 0.0, 0.0)
+                Direction.BACKWARD -> drive(-output, 0.0, 0.0)
+                Direction.LEFT -> drive(0.0, 0.0, output)
+                Direction.RIGHT -> drive(0.0, 0.0, -output)
+            }
 
             lastError = error
             lastReference = target
             timer.reset()
         }
     }
-
-
-
-
 
     fun rumble(controller: Gamepad, side: Side, power: RumbleStrength, duration: Int = 100) {
         val pwr = power.strength
@@ -133,9 +129,9 @@ class RobotConfig(hwMap: HardwareMap?) {
             }
         }
     }
+
     init {
         hardwareMap = hwMap
-
 
         FL = hardwareMap!!.get(DcMotorEx::class.java, "FL")
         FR = hardwareMap!!.get(DcMotorEx::class.java, "FR")
