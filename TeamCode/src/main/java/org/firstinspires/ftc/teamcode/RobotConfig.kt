@@ -42,9 +42,9 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     fun gamepadDrive(controller: Gamepad) {
         drive(
+            -controller.right_stick_y.toDouble(),
             controller.left_stick_y.toDouble(),
-            controller.right_stick_x.toDouble(),
-            controller.left_stick_x.toDouble()
+            controller.right_stick_x.toDouble()
         )
     }
 
