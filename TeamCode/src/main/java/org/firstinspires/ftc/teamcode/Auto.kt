@@ -21,9 +21,8 @@ class Auto: LinearOpMode() {
 
             //use the pidDrive function to drive in a 1 meter circle
             RC!!.pidDrive(0.5, Direction.FORWARD)
-            RC!!.pidDrive(0.5, Direction.LEFT)
+            sleep(15000)
             RC!!.pidDrive(0.5, Direction.BACKWARD)
-            RC!!.pidDrive(0.5, Direction.RIGHT)
         }
     }
 }

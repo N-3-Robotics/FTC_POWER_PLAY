@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.*
 import com.qualcomm.robotcore.util.ElapsedTime
 import kotlin.math.abs
 
+
 enum class Side {
     LEFT, RIGHT, BOTH
 }
@@ -27,24 +28,50 @@ class RobotConfig(hwMap: HardwareMap?) {
     var BL: DcMotorEx
     var BR: DcMotorEx
 
+    var TURRET: DcMotorEx
+    var SLIDES: DcMotorEx
+    var ARM: DcMotorEx
+
+    var CLAW: Servo
+    var CLAW_ROTATE: Servo
+
 
     private var hardwareMap: HardwareMap? = null
 
     fun drive(drive: Double, turn: Double, strafe: Double) {
-        val max = abs(drive).coerceAtLeast(abs(strafe).coerceAtLeast(abs(turn)))
+        var max: Double;
+        var leftFrontPower: Double = drive + turn + strafe
+        var rightFrontPower: Double = drive - turn - strafe
+        var leftBackPower: Double = drive - turn + strafe
+        var rightBackPower: Double = drive + turn - strafe
 
-        FL.power = drive + turn + strafe
-        FR.power = drive - turn - strafe
-        BL.power = drive + turn - strafe
-        BR.power = drive - turn + strafe
+        // Normalize the values so no wheel power exceeds 100%
+        // This ensures that the robot maintains the desired motion.
+
+        // Normalize the values so no wheel power exceeds 100%
+        // This ensures that the robot maintains the desired motion.
+        max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower))
+        max = Math.max(max, Math.abs(leftBackPower))
+        max = Math.max(max, Math.abs(rightBackPower))
+
+        if (max > 1.0) {
+            leftFrontPower /= max
+            rightFrontPower /= max
+            leftBackPower /= max
+            rightBackPower /= max
+        }
+        FL.setPower(leftFrontPower)
+        FR.setPower(rightFrontPower)
+        BL.setPower(leftBackPower)
+        BR.setPower(rightBackPower)
 
     }
 
     fun gamepadDrive(controller: Gamepad) {
         drive(
-            controller.left_stick_y.toDouble(),
-            controller.right_stick_x.toDouble(),
-            controller.left_stick_x.toDouble()
+            -controller.right_stick_y.toDouble(),
+            controller.left_stick_x.toDouble(),
+            controller.right_stick_x.toDouble()
         )
     }
 
@@ -61,9 +88,9 @@ class RobotConfig(hwMap: HardwareMap?) {
 
         val TICKS_PER_METER = TICKS_PER_REV / (WHEEL_DIAMETER * Math.PI)
 
-        val Kp = 0.1
-        val Ki = 0.1
-        val Kd = 0.1
+        val Kp = 25.0
+        val Ki = 0.0
+        val Kd = 18.0
 
         val target = distanceInM * TICKS_PER_METER
         var lastReference = target
@@ -102,12 +129,12 @@ class RobotConfig(hwMap: HardwareMap?) {
 
             val output = (Kp * error) + (Ki * integralSum) + (Kd * derivative)
 
-                when (direction) {
-                    Direction.FORWARD -> drive(output, 0.0, 0.0)
-                    Direction.BACKWARD -> drive(-output, 0.0, 0.0)
-                    Direction.LEFT -> drive(0.0, 0.0, output)
-                    Direction.RIGHT -> drive(0.0, 0.0, -output)
-                }
+            when (direction) {
+                Direction.FORWARD -> drive(output, 0.0, 0.0)
+                Direction.BACKWARD -> drive(-output, 0.0, 0.0)
+                Direction.LEFT -> drive(0.0, 0.0, output)
+                Direction.RIGHT -> drive(0.0, 0.0, -output)
+            }
 
             lastError = error
             lastReference = target
@@ -137,10 +164,20 @@ class RobotConfig(hwMap: HardwareMap?) {
         hardwareMap = hwMap
 
 
-        FL = hardwareMap!!.get(DcMotorEx::class.java, "FL")
-        FR = hardwareMap!!.get(DcMotorEx::class.java, "FR")
-        BL = hardwareMap!!.get(DcMotorEx::class.java, "BL")
-        BR = hardwareMap!!.get(DcMotorEx::class.java, "BR")
+        FL = hardwareMap!!.get(DcMotorEx::class.java, "fl")
+        FR = hardwareMap!!.get(DcMotorEx::class.java, "fr")
+        BL = hardwareMap!!.get(DcMotorEx::class.java, "bl")
+        BR = hardwareMap!!.get(DcMotorEx::class.java, "br")
+
+        TURRET = hardwareMap!!.get(DcMotorEx::class.java, "turret")
+        SLIDES = hardwareMap!!.get(DcMotorEx::class.java, "slides")
+        ARM = hardwareMap!!.get(DcMotorEx::class.java, "arm")
+
+        CLAW = hardwareMap!!.get(Servo::class.java, "claw")
+        CLAW_ROTATE = hardwareMap!!.get(Servo::class.java, "clawAngle")
+
+
+
 
         FL.direction = DcMotorSimple.Direction.REVERSE
         BL.direction = DcMotorSimple.Direction.REVERSE
