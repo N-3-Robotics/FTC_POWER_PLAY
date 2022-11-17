@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.qualcomm.robotcore.hardware.*
 import com.qualcomm.robotcore.util.ElapsedTime
 import kotlin.math.abs
@@ -33,17 +35,27 @@ class RobotConfig(hwMap: HardwareMap?) {
     var ARM: DcMotorEx
 
     var CLAW: Servo
-    var CLAW_ROTATE: Servo
+    var CLAW_ROTATE: CRServo
+
+    val TICKS_PER_REV_312 = ((((1+(46/17))) * (1+(46/11))) * 28)
+    val TICKS_PER_REV_223 = ((((1+(46/11))) * (1+(46/11))) * 28)
 
 
     private var hardwareMap: HardwareMap? = null
 
-    fun drive(drive: Double, turn: Double, strafe: Double) {
+    fun funnyDrive(drive: Double, turn: Double){
+        FL.power = drive + turn
+        FR.power = drive - turn
+        BL.power = drive + turn
+        BR.power = drive - turn
+    }
+
+    fun drive(drive: Double, strafe: Double, turn: Double) {
         var max: Double;
-        var leftFrontPower: Double = drive + turn + strafe
-        var rightFrontPower: Double = drive - turn - strafe
-        var leftBackPower: Double = drive - turn + strafe
-        var rightBackPower: Double = drive + turn - strafe
+        var leftFrontPower: Double = drive + strafe + turn
+        var rightFrontPower: Double = drive - strafe - turn
+        var leftBackPower: Double = drive - strafe + turn
+        var rightBackPower: Double = drive + strafe - turn
 
         // Normalize the values so no wheel power exceeds 100%
         // This ensures that the robot maintains the desired motion.
@@ -67,11 +79,11 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     }
 
-    fun gamepadDrive(controller: Gamepad) {
+    fun gamepadDrive(controller: Gamepad, multiplier: Double) {
         drive(
-            -controller.right_stick_y.toDouble(),
-            controller.left_stick_x.toDouble(),
-            controller.right_stick_x.toDouble()
+            -controller.left_stick_y.toDouble() * multiplier,
+            controller.left_stick_x.toDouble() * multiplier,
+            controller.right_stick_x.toDouble() * multiplier
         )
     }
 
@@ -79,18 +91,15 @@ class RobotConfig(hwMap: HardwareMap?) {
         drive(0.0, 0.0, 0.0)
     }
 
-    fun pidDrive(distanceInM: Double, direction: Direction){
-        val TICKS_PER_REV = ((((1+(46/17))) * (1+(46/11))) * 28)
-
+    fun pidDrive(distanceInM: Double, direction: Direction, Kp: Double, Ki: Double, Kd: Double){
+        var dashboard: FtcDashboard = FtcDashboard.getInstance()
         val WHEEL_DIAMETER = 96.0 / 1000.0
 
-        val initialWheelPosition = FL.currentPosition
+        val initialWheelPosition = FR.currentPosition
 
-        val TICKS_PER_METER = TICKS_PER_REV / (WHEEL_DIAMETER * Math.PI)
+        //convert ticks per rev to ticks per meter
+        val TICKS_PER_METER = TICKS_PER_REV_312 / (WHEEL_DIAMETER * Math.PI)
 
-        val Kp = 25.0
-        val Ki = 0.0
-        val Kd = 18.0
 
         val target = distanceInM * TICKS_PER_METER
         var lastReference = target
@@ -99,21 +108,18 @@ class RobotConfig(hwMap: HardwareMap?) {
 
         val maxIntegralSum = 0.5
 
-        val a = 0.8
-        var previousFilterEstimate = 0.0
-        var currentFilterEstimate = 0.0
 
         val timer: ElapsedTime = ElapsedTime()
 
-        while (abs(FL.currentPosition - initialWheelPosition) < abs(target)) {
-            val error = target - (FL.currentPosition - initialWheelPosition)
+
+
+        while (abs(FR.currentPosition - initialWheelPosition) < abs(target)) {
+            var packet = TelemetryPacket()
+            val error = target - (FR.currentPosition - initialWheelPosition)
 
             val errorChange = error - lastError
 
-            currentFilterEstimate = a * previousFilterEstimate + (1 - a) * errorChange
-            previousFilterEstimate = currentFilterEstimate
-
-            val derivative = currentFilterEstimate / timer.seconds()
+            val derivative = errorChange / timer.seconds()
 
             integralSum += (error * timer.seconds())
 
@@ -130,21 +136,27 @@ class RobotConfig(hwMap: HardwareMap?) {
             val output = (Kp * error) + (Ki * integralSum) + (Kd * derivative)
 
             when (direction) {
-                Direction.FORWARD -> drive(output, 0.0, 0.0)
-                Direction.BACKWARD -> drive(-output, 0.0, 0.0)
-                Direction.LEFT -> drive(0.0, 0.0, output)
-                Direction.RIGHT -> drive(0.0, 0.0, -output)
+                Direction.FORWARD -> funnyDrive(output, 0.0)
+                Direction.BACKWARD -> funnyDrive(-output, 0.0)
+                else -> {
+                    // do nothing
+                }
             }
+
+
 
             lastError = error
             lastReference = target
             timer.reset()
         }
+        stop()
     }
 
 
 
-
+    fun lerp(p0: Double, p1: Double, t: Double) : Double {
+        return (1 - t) * p0 + p1 * t;
+    }
 
     fun rumble(controller: Gamepad, side: Side, power: RumbleStrength, duration: Int = 100) {
         val pwr = power.strength
@@ -174,12 +186,19 @@ class RobotConfig(hwMap: HardwareMap?) {
         ARM = hardwareMap!!.get(DcMotorEx::class.java, "arm")
 
         CLAW = hardwareMap!!.get(Servo::class.java, "claw")
-        CLAW_ROTATE = hardwareMap!!.get(Servo::class.java, "clawAngle")
+        CLAW_ROTATE = hardwareMap!!.get(CRServo::class.java, "clawAngle")
 
 
 
 
         FL.direction = DcMotorSimple.Direction.REVERSE
         BL.direction = DcMotorSimple.Direction.REVERSE
+
+        FR.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        FL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        BR.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        BL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+
+        ARM.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
     }
 }
