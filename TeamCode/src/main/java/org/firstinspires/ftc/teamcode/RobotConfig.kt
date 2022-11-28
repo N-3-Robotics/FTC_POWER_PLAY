@@ -100,13 +100,13 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     // PID Turn function
     fun pidConeTrackingTurn(reference: Double, kP: Double, kI: Double, kD: Double) {
-        val target = 0.0
+        val target = 320.0
         var integralSum = 0.0
         var lastError = 0.0
 
         val timer = ElapsedTime()
 
-        while (abs(reference - target) > 20){
+        if (abs(reference - target) > 20){
             val error = target - reference
             val errorChange = error - lastError
             val derivative = errorChange / timer.seconds()

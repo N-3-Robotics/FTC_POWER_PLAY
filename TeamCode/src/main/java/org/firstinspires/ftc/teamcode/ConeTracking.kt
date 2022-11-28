@@ -130,7 +130,7 @@ class ConeTracking: LinearOpMode(){
 
                         }
                         else {
-                            RC!!.pidConeTrackingTurn(320.0, Kp, Ki, Kd)
+                            RC!!.pidConeTrackingTurn(cX, Kp, Ki, Kd)
                         }
                     } else {
                         rectangle(input, Point(x, y), Point(x + w, y + h), Scalar(255.0, 0.0, 0.0), 2)
