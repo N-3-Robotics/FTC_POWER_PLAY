@@ -13,11 +13,11 @@ import kotlin.math.abs
 @Config()
 object PID {
     @JvmField
-    var Kp = 0.08
+    var Kp = 0.0008
     @JvmField
     var Ki = 0.0
     @JvmField
-    var Kd = 0.005
+    var Kd = 0.0005
 }
 
 @Autonomous(name = "Auto")

@@ -4,7 +4,10 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.qualcomm.robotcore.hardware.*
 import com.qualcomm.robotcore.util.ElapsedTime
+import com.qualcomm.robotcore.util.WeakReferenceSet
 import kotlin.math.abs
+import org.firstinspires.ftc.teamcode.MotorConstants.*
+import org.firstinspires.ftc.teamcode.Side.*
 
 
 enum class Side {
@@ -13,6 +16,10 @@ enum class Side {
 
 enum class Direction {
     FORWARD, BACKWARD, LEFT, RIGHT
+}
+
+enum class MotorConstants(val TICKS_PER_REV: Double, val WHEEL_DIAMETER: Double, val TICKS_PER_METER: Double) {
+    GoBilda312(((((1+(46/17))) * (1+(46/11))) * 28).toDouble(), 96.0 / 1000.0, ((((1+(46/17))) * (1+(46/11))) * 28).toDouble() / (96.0 / 1000.0 * Math.PI))
 }
 
 // create an enum class where each value is a double that represents the strength of the rumble
@@ -90,6 +97,30 @@ class RobotConfig(hwMap: HardwareMap?) {
     fun stop() {
         drive(0.0, 0.0, 0.0)
     }
+
+    // PID Turn function
+    fun pidConeTrackingTurn(reference: Double, kP: Double, kI: Double, kD: Double) {
+        val target = 0.0
+        var integralSum = 0.0
+        var lastError = 0.0
+
+        val timer = ElapsedTime()
+
+        while (abs(reference - target) > 20){
+            val error = target - reference
+            val errorChange = error - lastError
+            val derivative = errorChange / timer.seconds()
+
+            integralSum += error * timer.seconds()
+
+            val out = (kP * error) + (kI * integralSum) + (kD * derivative)
+
+            funnyDrive(0.0, out)
+            lastError = error
+            timer.reset()
+        }
+    }
+
 
     fun pidDrive(distanceInM: Double, direction: Direction, Kp: Double, Ki: Double, Kd: Double){
         var dashboard: FtcDashboard = FtcDashboard.getInstance()
