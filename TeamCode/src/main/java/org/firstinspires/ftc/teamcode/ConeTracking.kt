@@ -126,9 +126,7 @@ class ConeTracking: LinearOpMode(){
                         )
                         if (cX > 300 && cX < 340) {
                             circle(input, Point(cX, cY), 7, Scalar(.0, 255.0, 0.0), -1)
-														 RC!!.stop()
-
-
+                            RC!!.stop()
                         }
                         else {
                             RC!!.pidConeTrackingTurn(cX, Kp, Ki, Kd)
