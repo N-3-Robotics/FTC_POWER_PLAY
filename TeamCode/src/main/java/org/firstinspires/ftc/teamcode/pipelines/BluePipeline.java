@@ -80,6 +80,11 @@ public class BluePipeline extends OpenCvPipeline {
             }
         }
 
+        //release all Mats
+        hsv_image.release();
+        mask.release();
+        maskImg.release();
+        hierarchy.release();
 
         return input;
     }
