@@ -81,8 +81,8 @@ public class BluePipeline extends OpenCvPipeline {
             w = boundingRect(contour).width;
             h = boundingRect(contour).height;
 
-            double focalLength = ((421 * (12 / 39.7)) / (11 / 39.7));
-            double distanceIN = (12 * focalLength) / w - 1;
+            double focalLength = (400 * 12) / 4.0;
+            double distanceIN = (12 * focalLength) / w / 3;
             double distanceM = distanceIN / 39.7;
             BigDecimal dist = new BigDecimal(distanceIN).setScale(2, RoundingMode.HALF_UP);
             if (w > 100){
@@ -97,6 +97,7 @@ public class BluePipeline extends OpenCvPipeline {
                     circle(input, new Point(cX, cY), 7, new Scalar(0, 0, 255), -1);
 
                     putText(input, "Distance: " + dist + "in", new Point(cX - 100, cY + 50), FONT_HERSHEY_SIMPLEX, 0.75, new Scalar(255, 255, 255), 2);
+                    telemetry.addData("Width", w);
 
                     if (cX > 300 && cX < 340) {
                         circle(input, new Point(cX, cY), 7, new Scalar(0, 255, 0), -1);
