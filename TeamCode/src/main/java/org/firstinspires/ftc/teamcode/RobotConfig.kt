@@ -37,12 +37,8 @@ class RobotConfig(hwMap: HardwareMap?) {
     var BL: DcMotorEx
     var BR: DcMotorEx
 
-    var TURRET: DcMotorEx
-    var SLIDES: DcMotorEx
-    var ARM: DcMotorEx
-
-    var CLAW: Servo
-    var CLAW_ROTATE: CRServo
+    var SLIDES_LEFT: DcMotorEx
+    var SLIDES_RIGHT: DcMotorEx
 
     val TICKS_PER_REV_312 = ((((1+(46/17))) * (1+(46/11))) * 28)
     val TICKS_PER_REV_223 = ((((1+(46/11))) * (1+(46/11))) * 28)
@@ -207,29 +203,23 @@ class RobotConfig(hwMap: HardwareMap?) {
         hardwareMap = hwMap
 
 
-        FL = hardwareMap!!.get(DcMotorEx::class.java, "fl")
-        FR = hardwareMap!!.get(DcMotorEx::class.java, "fr")
-        BL = hardwareMap!!.get(DcMotorEx::class.java, "bl")
-        BR = hardwareMap!!.get(DcMotorEx::class.java, "br")
+        FL = hardwareMap!!.get(DcMotorEx::class.java, "FL")
+        FR = hardwareMap!!.get(DcMotorEx::class.java, "FR")
+        BL = hardwareMap!!.get(DcMotorEx::class.java, "BL")
+        BR = hardwareMap!!.get(DcMotorEx::class.java, "BR")
 
-        TURRET = hardwareMap!!.get(DcMotorEx::class.java, "turret")
-        SLIDES = hardwareMap!!.get(DcMotorEx::class.java, "slides")
-        ARM = hardwareMap!!.get(DcMotorEx::class.java, "arm")
-
-        CLAW = hardwareMap!!.get(Servo::class.java, "claw")
-        CLAW_ROTATE = hardwareMap!!.get(CRServo::class.java, "clawAngle")
+        SLIDES_LEFT = hardwareMap!!.get(DcMotorEx::class.java, "SL")
+        SLIDES_RIGHT = hardwareMap!!.get(DcMotorEx::class.java, "SR")
 
 
-
-
-        FL.direction = DcMotorSimple.Direction.REVERSE
         BL.direction = DcMotorSimple.Direction.REVERSE
+        BR.direction = DcMotorSimple.Direction.REVERSE
+
+        SLIDES_RIGHT.direction = DcMotorSimple.Direction.REVERSE
 
         FR.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         FL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         BR.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         BL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-
-        ARM.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
     }
 }

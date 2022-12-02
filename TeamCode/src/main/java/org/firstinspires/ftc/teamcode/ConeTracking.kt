@@ -37,7 +37,7 @@ class RedConeTracking: LinearOpMode(){
         val cameraMonitorViewId = hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.packageName)
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName::class.java, "Webcam 1"), cameraMonitorViewId)
 
-        webcam!!.setPipeline(RedPipeline())
+        webcam!!.setPipeline(RedPipeline(telemetry))
 
         webcam!!.setMillisecondsPermissionTimeout(2500) // Timeout for obtaining permission is configurable. Set before opening.
 
@@ -77,7 +77,7 @@ class BlueConeTracking: LinearOpMode(){
         val cameraMonitorViewId = hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.packageName)
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName::class.java, "Webcam 1"), cameraMonitorViewId)
 
-        webcam!!.setPipeline(BluePipeline())
+        webcam!!.setPipeline(BluePipeline(telemetry))
 
         webcam!!.setMillisecondsPermissionTimeout(2500) // Timeout for obtaining permission is configurable. Set before opening.
 
