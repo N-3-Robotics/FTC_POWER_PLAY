@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 
 @TeleOp(name="TeleOP")
 class TeleOP: LinearOpMode() {
@@ -11,16 +14,43 @@ class TeleOP: LinearOpMode() {
 
         RC = RobotConfig(hardwareMap)
 
+        telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
+
         waitForStart()
 
         while (opModeIsActive()){
 
+
+            telemetry.addData("Distance", RC!!.CONE_SENSOR.getDistance(DistanceUnit.INCH))
+
             RC!!.gamepadDrive(gamepad1, 1.0)
 
-            if (-gamepad2.right_stick_y.toDouble() > 0.0) {
+            if (-gamepad2.right_stick_y.toDouble() > 0.0 || -gamepad2.right_stick_y.toDouble() < 0.0) {
                 RC!!.SLIDES_RIGHT.power = -gamepad2.right_stick_y.toDouble()
                 RC!!.SLIDES_LEFT.power = -gamepad2.right_stick_y.toDouble()
             }
+            else {
+                RC!!.SLIDES_RIGHT.power = 0.0
+                RC!!.SLIDES_LEFT.power = 0.0
+            }
+
+            // setup the claw motor to open and close
+            if (gamepad2.right_bumper) {
+                RC!!.CLAW.power = 1.0
+            } else if (gamepad2.left_bumper) {
+                RC!!.CLAW.power = -1.0
+            } else {
+                RC!!.CLAW.power = 0.0
+            }
+
+
+            if (RC!!.CONE_SENSOR.getDistance(DistanceUnit.INCH) <= 1.5) {
+                telemetry.addData("Cone Sensor", "Cone Detected")
+            } else {
+                telemetry.addData("Cone Sensor", "No Cone Detected")
+            }
+
+            telemetry.update()
 
         }
 

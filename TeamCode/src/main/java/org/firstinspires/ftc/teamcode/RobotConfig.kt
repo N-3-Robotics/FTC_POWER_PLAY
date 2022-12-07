@@ -40,6 +40,9 @@ class RobotConfig(hwMap: HardwareMap?) {
     var SLIDES_LEFT: DcMotorEx
     var SLIDES_RIGHT: DcMotorEx
 
+    var CLAW: CRServo
+
+    var CONE_SENSOR: ColorRangeSensor
     val TICKS_PER_REV_312 = ((((1+(46/17))) * (1+(46/11))) * 28)
     val TICKS_PER_REV_223 = ((((1+(46/11))) * (1+(46/11))) * 28)
 
@@ -208,8 +211,12 @@ class RobotConfig(hwMap: HardwareMap?) {
         BL = hardwareMap!!.get(DcMotorEx::class.java, "BL")
         BR = hardwareMap!!.get(DcMotorEx::class.java, "BR")
 
+        CLAW = hardwareMap!!.get(CRServo::class.java, "CLAW")
+
         SLIDES_LEFT = hardwareMap!!.get(DcMotorEx::class.java, "SL")
         SLIDES_RIGHT = hardwareMap!!.get(DcMotorEx::class.java, "SR")
+
+        CONE_SENSOR = hardwareMap!!.get(ColorRangeSensor::class.java, "CONE_SENSOR")
 
 
         BL.direction = DcMotorSimple.Direction.REVERSE
@@ -221,5 +228,8 @@ class RobotConfig(hwMap: HardwareMap?) {
         FL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         BR.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         BL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+
+        SLIDES_LEFT.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        SLIDES_RIGHT.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
     }
 }
