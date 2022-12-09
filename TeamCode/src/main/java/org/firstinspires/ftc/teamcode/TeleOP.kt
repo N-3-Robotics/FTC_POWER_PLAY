@@ -25,14 +25,7 @@ class TeleOP: LinearOpMode() {
 
             RC!!.gamepadDrive(gamepad1, 1.0)
 
-            if (-gamepad2.right_stick_y.toDouble() > 0.0 || -gamepad2.right_stick_y.toDouble() < 0.0) {
-                RC!!.SLIDES_RIGHT.power = -gamepad2.right_stick_y.toDouble()
-                RC!!.SLIDES_LEFT.power = -gamepad2.right_stick_y.toDouble()
-            }
-            else {
-                RC!!.SLIDES_RIGHT.power = 0.0
-                RC!!.SLIDES_LEFT.power = 0.0
-            }
+            RC!!.SLIDES.power = -gamepad2.right_stick_y.toDouble()
 
             // setup the claw motor to open and close
             if (gamepad2.right_bumper) {
@@ -49,6 +42,9 @@ class TeleOP: LinearOpMode() {
             } else {
                 telemetry.addData("Cone Sensor", "No Cone Detected")
             }
+
+
+            telemetry.addData("Cone Sensor", RC!!.CONE_SENSOR.getDistance(DistanceUnit.INCH))
 
             telemetry.update()
 
