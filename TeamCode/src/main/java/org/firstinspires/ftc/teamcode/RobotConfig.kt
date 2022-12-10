@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.*
 import com.qualcomm.robotcore.util.ElapsedTime
 import com.qualcomm.robotcore.util.WeakReferenceSet
@@ -41,7 +42,7 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     var CLAW: CRServo
 
-    var CONE_SENSOR: DistanceSensor
+    var CONE_SENSOR: Rev2mDistanceSensor
     val TICKS_PER_REV_312 = ((((1+(46/17))) * (1+(46/11))) * 28)
     val TICKS_PER_REV_223 = ((((1+(46/11))) * (1+(46/11))) * 28)
 
@@ -214,11 +215,13 @@ class RobotConfig(hwMap: HardwareMap?) {
 
         SLIDES = hardwareMap!!.get(DcMotorEx::class.java, "SLIDES")
 
-        CONE_SENSOR = hardwareMap!!.get(DistanceSensor::class.java, "CONE_SENSOR")
+        CONE_SENSOR = hardwareMap!!.get(Rev2mDistanceSensor::class.java, "CONE_SENSOR")
 
 
         BL.direction = DcMotorSimple.Direction.REVERSE
         BR.direction = DcMotorSimple.Direction.REVERSE
+
+        //CLAW.direction = Servo.Direction.REVERSE
 
         FR.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         FL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE

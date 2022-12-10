@@ -5,9 +5,6 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
-import org.firstinspires.ftc.teamcode.PID.Kd
-import org.firstinspires.ftc.teamcode.PID.Ki
-import org.firstinspires.ftc.teamcode.PID.Kp
 import org.firstinspires.ftc.teamcode.pipelines.*
 import org.opencv.core.*
 import org.opencv.core.Core.bitwise_and
