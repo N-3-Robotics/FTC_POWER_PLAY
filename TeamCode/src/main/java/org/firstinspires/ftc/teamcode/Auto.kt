@@ -1,60 +1,85 @@
 package org.firstinspires.ftc.teamcode
 
 import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.DriveConstants.tileLength
+import org.firstinspires.ftc.teamcode.DriveConstants.turnTime
 import kotlin.math.abs
-
-@Config()
-object Vars {
-    @JvmField
-    var driveTime: Long = 1600
-
-    @JvmField
-    var strafeTime: Long = 2100
-
-    @JvmField
-    var turnTime: Long = 1050
-
-    var tileLength = 23.5
-}
+import org.firstinspires.ftc.teamcode.QOL.Companion.inchesToTicks
 
 @Autonomous(name = "Auto")
 class Auto: LinearOpMode() {
 
-    //take the ticks per revolution, and turn it into ticks per meter
-    var WHEEL_DIAMETER: Double = 0.0
-
-    //convert ticks per rev to ticks per meter
-    var TICKS_PER_METER: Double = 0.0
-
-
     fun forward(tiles: Int){
-        //while the front right wheel hasn't traveled 23.5 inches, drive forward at 0.3 power
-        var target = RC!!.FR.currentPosition + (tiles * TICKS_PER_METER)
+        val target = RC!!.FR.currentPosition + (tiles * inchesToTicks(tileLength))
         while (RC!!.FR.currentPosition < target) {
-            RC!!.drive(0.3, 0.0, 0.0)
+            //start at 0.75 power, and decrease power curve-ly as the robot gets closer to the target
+            val power = 0.75 * (1 - (abs(RC!!.FR.currentPosition - target) / (tiles * MotorConstants.GoBilda312.TICKS_PER_METER)))
+            RC!!.drive(power, 0.0, 0.0)
             telemetry.addData("Position", RC!!.FR.currentPosition)
             telemetry.addData("Target", target)
+            telemetry.addData("Distance Remaining", abs(RC!!.FR.currentPosition - target))
+            telemetry.addData("Power", power)
+            telemetry.update()
+        }
+        RC!!.stop()
+    }
+    fun backward(tiles: Int){
+        val target = RC!!.FR.currentPosition - (tiles * inchesToTicks(tileLength))
+        while (RC!!.FR.currentPosition > target) {
+            //start at 0.75 power, and decrease power curve-ly as the robot gets closer to the target
+            val power = 0.75 * (abs(RC!!.FR.currentPosition - target) / (tiles * MotorConstants.GoBilda312.TICKS_PER_METER))
+            RC!!.drive(-power, 0.0, 0.0)
+            telemetry.addData("Position", RC!!.FR.currentPosition)
+            telemetry.addData("Target", target)
+            telemetry.addData("Distance Remaining", abs(RC!!.FR.currentPosition - target))
+            telemetry.addData("Power", power)
+            telemetry.update()
+        }
+        RC!!.stop()
+    }
+    fun left(tiles: Int){
+        val target = RC!!.FR.currentPosition + (tiles * inchesToTicks(tileLength))
+        while (RC!!.FR.currentPosition < target) {
+            //start at 0.75 power, and decrease power curve-ly as the robot gets closer to the target
+            val power = 0.75 * (1 - (abs(RC!!.FR.currentPosition - target) / (tiles * MotorConstants.GoBilda312.TICKS_PER_METER)))
+            RC!!.drive(0.0, power, 0.0)
+            telemetry.addData("Position", RC!!.FR.currentPosition)
+            telemetry.addData("Target", target)
+            telemetry.addData("Distance Remaining", abs(RC!!.FR.currentPosition - target))
+            telemetry.addData("Power", power)
+            telemetry.update()
+        }
+        RC!!.stop()
+    }
+
+    fun right(tiles: Int){
+        val target = RC!!.FR.currentPosition - (tiles * inchesToTicks(tileLength))
+        while (RC!!.FR.currentPosition > target) {
+            //start at 0.75 power, and decrease power curve-ly as the robot gets closer to the target
+            val power = 0.75 * (1 - (abs(RC!!.FR.currentPosition - target) / (tiles * MotorConstants.GoBilda312.TICKS_PER_METER)))
+            RC!!.drive(0.0, -power, 0.0)
+            telemetry.addData("Position", RC!!.FR.currentPosition)
+            telemetry.addData("Target", target)
+            telemetry.addData("Distance Remaining", abs(RC!!.FR.currentPosition - target))
+            telemetry.addData("Power", power)
             telemetry.update()
         }
         RC!!.stop()
     }
 
 
+
     fun turnRight(){
         RC!!.drive(0.0, 0.0, 0.3)
-        sleep(Vars.turnTime)
+        sleep(turnTime.toLong())
         RC!!.stop()
     }
     fun turnLeft(){
         RC!!.drive(0.0, 0.0, -0.3)
-        sleep(Vars.turnTime)
+        sleep(turnTime.toLong())
         RC!!.stop()
     }
 
@@ -63,16 +88,11 @@ class Auto: LinearOpMode() {
     override fun runOpMode() {
         RC = RobotConfig(hardwareMap)
 
-        WHEEL_DIAMETER = 96.0 / 1000.0
-
-        TICKS_PER_METER = RC!!.TICKS_PER_REV_312 / (WHEEL_DIAMETER * Math.PI)
-
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
+
+
         waitForStart()
-        //use the pidDrive function to drive in a 1 meter circle
-
-
         forward(2)
     }
 }

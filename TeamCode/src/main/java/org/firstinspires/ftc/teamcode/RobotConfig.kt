@@ -11,27 +11,6 @@ import org.firstinspires.ftc.teamcode.MotorConstants.*
 import org.firstinspires.ftc.teamcode.Side.*
 
 
-enum class Side {
-    LEFT, RIGHT, BOTH
-}
-
-enum class Direction {
-    FORWARD, BACKWARD, LEFT, RIGHT
-}
-
-enum class MotorConstants(val TICKS_PER_REV: Double, val WHEEL_DIAMETER: Double, val TICKS_PER_METER: Double) {
-    GoBilda312(((((1+(46/17))) * (1+(46/11))) * 28).toDouble(), 96.0 / 1000.0, ((((1+(46/17))) * (1+(46/11))) * 28).toDouble() / (96.0 / 1000.0 * Math.PI))
-}
-
-// create an enum class where each value is a double that represents the strength of the rumble
-
-enum class RumbleStrength(val strength: Double) {
-    LOW(0.25),
-    MEDIUM(0.5),
-    HIGH(0.75),
-    MAX(1.0)
-}
-
 class RobotConfig(hwMap: HardwareMap?) {
     var FL: DcMotorEx
     var FR: DcMotorEx
