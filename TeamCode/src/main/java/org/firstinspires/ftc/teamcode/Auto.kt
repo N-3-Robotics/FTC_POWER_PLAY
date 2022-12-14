@@ -6,8 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.teamcode.DriveConstants.tileLength
 import org.firstinspires.ftc.teamcode.DriveConstants.turnTime
+import org.firstinspires.ftc.teamcode.QOL.Companion.inchesToMeters
 import kotlin.math.abs
 import org.firstinspires.ftc.teamcode.QOL.Companion.inchesToTicks
+import kotlin.math.exp
 
 @Autonomous(name = "Auto")
 class Auto: LinearOpMode() {
@@ -16,7 +18,9 @@ class Auto: LinearOpMode() {
         val target = RC!!.FR.currentPosition + (tiles * inchesToTicks(tileLength))
         while (RC!!.FR.currentPosition < target) {
             //start at 0.75 power, and decrease power curve-ly as the robot gets closer to the target
-            val power = 0.75 * (1 - (abs(RC!!.FR.currentPosition - target) / (tiles * MotorConstants.GoBilda312.TICKS_PER_METER)))
+            var power = abs(RC!!.FR.currentPosition - target) / target
+            //square the power
+            power *= power
             RC!!.drive(power, 0.0, 0.0)
             telemetry.addData("Position", RC!!.FR.currentPosition)
             telemetry.addData("Target", target)
@@ -29,8 +33,10 @@ class Auto: LinearOpMode() {
     fun backward(tiles: Int){
         val target = RC!!.FR.currentPosition - (tiles * inchesToTicks(tileLength))
         while (RC!!.FR.currentPosition > target) {
-            //start at 0.75 power, and decrease power curve-ly as the robot gets closer to the target
-            val power = 0.75 * (abs(RC!!.FR.currentPosition - target) / (tiles * MotorConstants.GoBilda312.TICKS_PER_METER))
+
+            var power = abs(RC!!.FR.currentPosition - target) / target
+            power *= power
+
             RC!!.drive(-power, 0.0, 0.0)
             telemetry.addData("Position", RC!!.FR.currentPosition)
             telemetry.addData("Target", target)
@@ -43,8 +49,9 @@ class Auto: LinearOpMode() {
     fun left(tiles: Int){
         val target = RC!!.FR.currentPosition + (tiles * inchesToTicks(tileLength))
         while (RC!!.FR.currentPosition < target) {
-            //start at 0.75 power, and decrease power curve-ly as the robot gets closer to the target
-            val power = 0.75 * (abs(RC!!.FR.currentPosition - target) / (tiles * MotorConstants.GoBilda312.TICKS_PER_METER))
+            var power = abs(RC!!.FR.currentPosition - target) / target
+            power *= power
+
             RC!!.drive(0.0, power, 0.0)
             telemetry.addData("Position", RC!!.FR.currentPosition)
             telemetry.addData("Target", target)
@@ -58,8 +65,9 @@ class Auto: LinearOpMode() {
     fun right(tiles: Int){
         val target = RC!!.FR.currentPosition - (tiles * inchesToTicks(tileLength))
         while (RC!!.FR.currentPosition > target) {
-            //start at 0.75 power, and decrease power curve-ly as the robot gets closer to the target
-            val power = 0.75 * (abs(RC!!.FR.currentPosition - target) / (tiles * MotorConstants.GoBilda312.TICKS_PER_METER))
+            var power = abs(RC!!.FR.currentPosition - target) / target
+            power *= power
+
             RC!!.drive(0.0, -power, 0.0)
             telemetry.addData("Position", RC!!.FR.currentPosition)
             telemetry.addData("Target", target)
