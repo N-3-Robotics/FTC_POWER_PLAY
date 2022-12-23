@@ -13,7 +13,7 @@ import kotlin.math.exp
 
 @Autonomous(name = "Auto")
 class Auto: LinearOpMode() {
-
+    // #TODO: Implement Proportional Control equations for all drive functions
     fun forward(tiles: Int){
         val target = RC!!.FR.currentPosition + (tiles * inchesToTicks(tileLength))
         while (RC!!.FR.currentPosition < target) {
@@ -79,7 +79,7 @@ class Auto: LinearOpMode() {
     }
 
 
-
+    // #TODO: Implement Proportional turn control, using the IMU.
     fun turnRight(){
         RC!!.drive(0.0, 0.0, 0.3)
         sleep(turnTime.toLong())
