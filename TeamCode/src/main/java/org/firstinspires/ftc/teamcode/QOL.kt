@@ -43,6 +43,9 @@ object DriveConstants{
 
     @JvmField
     var tileLength = 23.5 //inches
+
+    @JvmField
+    var kP = 0.01
 }
 
 // create an enum class where each value is a double that represents the strength of the rumble
