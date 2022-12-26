@@ -32,6 +32,9 @@ class QOL {
         fun degToRad(degrees: Double): Double {
             return degrees * Math.PI / 180
         }
+        fun rED(current: Boolean, previous: Boolean): Boolean { // Rising Edge Detector
+            return current && !previous
+        }
     }
 }
 

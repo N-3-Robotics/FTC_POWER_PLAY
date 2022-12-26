@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.utilities
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.*
-import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import kotlin.math.abs
 import kotlin.math.cos
@@ -30,6 +29,11 @@ class RobotConfig(hwMap: HardwareMap?) {
             return (FL.currentPosition + FR.currentPosition + BL.currentPosition + BR.currentPosition) / 4
         }
 
+    val botHeading: Float
+        get() {
+            return IMU.angularOrientation.firstAngle
+        }
+
     private var hardwareMap: HardwareMap? = null
 
     fun funnyDrive(drive: Double, turn: Double){
@@ -40,7 +44,7 @@ class RobotConfig(hwMap: HardwareMap?) {
     }
 
     fun RCDrive(drive: Double, strafe: Double, turn: Double) {
-        var max: Double;
+        var max: Double
         var leftFrontPower: Double = drive + strafe + turn
         var rightFrontPower: Double = drive - strafe - turn
         var leftBackPower: Double = drive - strafe + turn
@@ -51,9 +55,9 @@ class RobotConfig(hwMap: HardwareMap?) {
 
         // Normalize the values so no wheel power exceeds 100%
         // This ensures that the robot maintains the desired motion.
-        max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower))
-        max = Math.max(max, Math.abs(leftBackPower))
-        max = Math.max(max, Math.abs(rightBackPower))
+        max = max(abs(leftFrontPower), abs(rightFrontPower))
+        max = max(max, abs(leftBackPower))
+        max = max(max, abs(rightBackPower))
 
         if (max > 1.0) {
             leftFrontPower /= max
@@ -61,17 +65,16 @@ class RobotConfig(hwMap: HardwareMap?) {
             leftBackPower /= max
             rightBackPower /= max
         }
-        FL.setPower(leftFrontPower)
-        FR.setPower(rightFrontPower)
-        BL.setPower(leftBackPower)
-        BR.setPower(rightBackPower)
+        FL.power = leftFrontPower
+        FR.power = rightFrontPower
+        BL.power = leftBackPower
+        BR.power = rightBackPower
 
     }
 
     fun FCDrive(x: Double, y: Double, turn: Double, telemetry: Telemetry) {
-        val botHeading: Double = -IMU.angularOrientation.firstAngle.toDouble()
-        val rotX = x * cos(botHeading) - y * sin(botHeading)
-        val rotY = x * sin(botHeading) + y * cos(botHeading)
+        val rotX = x * cos(-botHeading) - y * sin(-botHeading)
+        val rotY = x * sin(-botHeading) + y * cos(-botHeading)
 
         val denominator = max(abs(y) + abs(x) + abs(turn), 1.0)
 
@@ -79,6 +82,11 @@ class RobotConfig(hwMap: HardwareMap?) {
         BL.power = (rotY - rotX + turn) / denominator
         FR.power = (rotY - rotX - turn) / denominator
         BR.power = (rotY + rotX - turn) / denominator
+        telemetry.addData("X", x)
+        telemetry.addData("Y", y)
+        telemetry.addData("RotX", rotX)
+        telemetry.addData("RotY", rotY)
+        telemetry.addData("Turn", turn)
     }
 
     fun gamepadDrive(controller: Gamepad, multiplier: Double, telemetry: Telemetry) {
@@ -92,29 +100,6 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     fun stop() {
         RCDrive(0.0, 0.0, 0.0)
-    }
-
-    // PID Turn function
-    fun pidConeTrackingTurn(reference: Double, kP: Double, kI: Double, kD: Double) {
-        val target = 320.0
-        var integralSum = 0.0
-        var lastError = 0.0
-
-        val timer = ElapsedTime()
-
-        if (abs(reference - target) > 20){
-            val error = target - reference
-            val errorChange = error - lastError
-            val derivative = errorChange / timer.seconds()
-
-            integralSum += error * timer.seconds()
-
-            val out = (kP * error) + (kI * integralSum) + (kD * derivative)
-
-            funnyDrive(0.0, out)
-            lastError = error
-            timer.reset()
-        }
     }
 
     fun lerp(p0: Double, p1: Double, t: Double) : Double {
@@ -134,10 +119,6 @@ class RobotConfig(hwMap: HardwareMap?) {
                 controller.rumble(pwr / 2, pwr / 2, duration)
             }
         }
-    }
-
-    fun getHeading(): Double {
-        return IMU.angularOrientation.firstAngle.toDouble()
     }
 
     init {
