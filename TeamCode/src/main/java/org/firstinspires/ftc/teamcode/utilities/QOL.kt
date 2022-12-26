@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.utilities
 
 import com.acmerobotics.dashboard.config.Config
 import kotlin.math.pow

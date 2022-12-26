@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.autos
 
 import android.annotation.SuppressLint
 import com.acmerobotics.dashboard.FtcDashboard
@@ -6,15 +6,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.pipelines.*
+import org.firstinspires.ftc.teamcode.utilities.RobotConfig
 import org.opencv.core.*
-import org.opencv.core.Core.bitwise_and
-import org.opencv.core.Core.inRange
 import org.opencv.imgproc.Imgproc.*
-import org.opencv.imgproc.Moments
 import org.openftc.easyopencv.OpenCvCamera.AsyncCameraOpenListener
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
-import org.openftc.easyopencv.OpenCvPipeline
 import org.openftc.easyopencv.OpenCvWebcam
 
 

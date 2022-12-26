@@ -1,7 +1,5 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.utilities
 
-import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.*
@@ -27,9 +25,10 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     var IMU: BNO055IMU
 
-    val TICKS_PER_REV_312 = ((((1+(46/17))) * (1+(46/11))) * 28)
-    val TICKS_PER_REV_223 = ((((1+(46/11))) * (1+(46/11))) * 28)
-
+    val currentPosition: Int
+        get() {
+            return (FL.currentPosition + FR.currentPosition + BL.currentPosition + BR.currentPosition) / 4
+        }
 
     private var hardwareMap: HardwareMap? = null
 
@@ -136,6 +135,11 @@ class RobotConfig(hwMap: HardwareMap?) {
             }
         }
     }
+
+    fun getHeading(): Double {
+        return IMU.angularOrientation.firstAngle.toDouble()
+    }
+
     init {
         hardwareMap = hwMap
 
