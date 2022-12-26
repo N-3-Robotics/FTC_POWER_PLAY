@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode
+package org.firstinspires.ftc.teamcode.teleops
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
@@ -9,6 +9,9 @@ import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.utilities.RobotConfig
+import org.firstinspires.ftc.teamcode.utilities.RumbleStrength
+import org.firstinspires.ftc.teamcode.utilities.Side
 
 @TeleOp(name="TeleOP")
 class TeleOP: LinearOpMode() {
