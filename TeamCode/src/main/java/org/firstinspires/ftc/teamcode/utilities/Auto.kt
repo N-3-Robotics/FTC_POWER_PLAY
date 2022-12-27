@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package org.firstinspires.ftc.teamcode.utilities
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -8,6 +10,7 @@ import org.firstinspires.ftc.teamcode.utilities.QOL.Companion.calcPower
 import org.firstinspires.ftc.teamcode.utilities.QOL.Companion.calcTurnPower
 import org.firstinspires.ftc.teamcode.utilities.QOL.Companion.inchesToTicks
 import kotlin.math.abs
+
 
 
 open class Auto: LinearOpMode() {

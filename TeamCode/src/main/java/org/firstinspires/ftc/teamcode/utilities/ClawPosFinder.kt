@@ -11,7 +11,7 @@ object ConePos {
 }
 
 @TeleOp(name = "CLAW FINDER")
-public class ClawPosFinder: LinearOpMode() {
+class ClawPosFinder: LinearOpMode() {
     var RC: RobotConfig? = null
     override fun runOpMode() {
         RC = RobotConfig(hardwareMap)

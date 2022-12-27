@@ -1,3 +1,4 @@
+@file:Suppress("unused")
 package org.firstinspires.ftc.teamcode.autos
 
 import android.annotation.SuppressLint
@@ -13,6 +14,7 @@ import org.openftc.easyopencv.OpenCvCamera.AsyncCameraOpenListener
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
 import org.openftc.easyopencv.OpenCvWebcam
+
 
 
 @Autonomous(name = "Red Cone Tracking")
