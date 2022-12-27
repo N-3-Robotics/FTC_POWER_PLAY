@@ -16,8 +16,14 @@ class QOL {
         fun inchesToTicks(inches: Double): Int {
             return (inchesToMeters(inches) * MotorConstants.GoBilda312.TICKS_PER_METER).roundToInt()
         }
+        fun ticksToInches(ticks: Int): Double {
+            return metersToInches(ticks / MotorConstants.GoBilda312.TICKS_PER_METER)
+        }
         fun metersToTicks(meters: Double): Int {
             return (meters * MotorConstants.GoBilda312.TICKS_PER_METER).roundToInt()
+        }
+        fun ticksToMeters(ticks: Int): Double {
+            return ticks / MotorConstants.GoBilda312.TICKS_PER_METER
         }
         fun calcPower(target: Int, current: Int): Double {
             val p = DriveConstants.drive_kP * (target - current)
@@ -27,7 +33,7 @@ class QOL {
             val p = DriveConstants.turn_kP * (target - current)
             return 2 * (1 / (1 + Math.E.pow(-p))) - 1
         }
-        fun radToDeg(radians: Double): Double {
+        fun radToDeg(radians: Float): Double {
             return radians * 180 / Math.PI
         }
         fun degToRad(degrees: Double): Double {
@@ -81,6 +87,9 @@ object DriveConstants{
 
     @JvmField
     var ClawClose = 0.6
+
+    @JvmField
+    var SlidesSpeed = 0.75
 }
 
 // create an enum class where each value is a double that represents the strength of the rumble

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.exception.RobotCoreException
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesSpeed
 import org.firstinspires.ftc.teamcode.utilities.QOL.Companion.radToDeg
 import org.firstinspires.ftc.teamcode.utilities.TeleOP
 
@@ -43,7 +44,7 @@ class DriverControl: TeleOP() {
 
             ROBOT.gamepadDrive(gamepad1, 1.0, telemetry)
 
-            ROBOT.SLIDES.power = -gamepad1.right_stick_y.toDouble() * 0.75
+            ROBOT.SLIDES.power = -gamepad1.right_stick_y.toDouble() * SlidesSpeed
 
             // setup the claw motor to open and close
             when {

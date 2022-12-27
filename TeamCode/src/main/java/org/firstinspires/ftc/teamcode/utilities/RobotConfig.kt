@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "NAME_SHADOWING")
 package org.firstinspires.ftc.teamcode.utilities
 
 import com.qualcomm.hardware.bosch.BNO055IMU
@@ -74,6 +74,7 @@ class RobotConfig(hwMap: HardwareMap?) {
     }
 
     fun FCDrive(x: Double, y: Double, turn: Double, telemetry: Telemetry) {
+        val x = x * 1.1
         val rotX = x * cos(-botHeading) - y * sin(-botHeading)
         val rotY = x * sin(-botHeading) + y * cos(-botHeading)
 
