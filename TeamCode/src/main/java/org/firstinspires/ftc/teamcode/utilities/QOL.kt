@@ -7,13 +7,13 @@ import kotlin.math.roundToInt
 
 class QOL {
     companion object {
-        fun inchesToMeters(inches: Double): Double {
+        fun inchesToMeters(inches: Int): Double {
             return inches / 39.3701
         }
         fun metersToInches(meters: Double): Double {
             return meters * 39.3701
         }
-        fun inchesToTicks(inches: Double): Int {
+        fun inchesToTicks(inches: Int): Int {
             return (inchesToMeters(inches) * MotorConstants.GoBilda312.TICKS_PER_METER).roundToInt()
         }
         fun ticksToInches(ticks: Int): Double {
@@ -59,16 +59,7 @@ enum class MotorConstants(val TICKS_PER_REV: Double, val WHEEL_DIAMETER: Double,
 @Config()
 object DriveConstants{
     @JvmField
-    var driveTime = 1600 // milliseconds
-
-    @JvmField
-    var strafeTime = 2100 // milliseconds
-
-    @JvmField
-    var turnTime = 1050 // milliseconds
-
-    @JvmField
-    var tileLength = 23.5 //inches
+    var tileLength = 24 //inches
 
     @JvmField
     var drive_kP = 0.01

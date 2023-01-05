@@ -19,7 +19,7 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     var SLIDES: DcMotorEx
 
-    var CLAW: CRServo
+    var CLAW: Servo
 
     var CONE_SENSOR: Rev2mDistanceSensor
 
@@ -73,7 +73,7 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     }
 
-    fun FCDrive(x: Double, y: Double, turn: Double, telemetry: Telemetry) {
+    fun FCDrive(x: Double, y: Double, turn: Double) {
         val x = x * 1.1
         val rotX = x * cos(-botHeading) - y * sin(-botHeading)
         val rotY = x * sin(-botHeading) + y * cos(-botHeading)
@@ -84,19 +84,13 @@ class RobotConfig(hwMap: HardwareMap?) {
         BL.power = (rotY - rotX + turn) / denominator
         FR.power = (rotY - rotX - turn) / denominator
         BR.power = (rotY + rotX - turn) / denominator
-        telemetry.addData("X", x)
-        telemetry.addData("Y", y)
-        telemetry.addData("RotX", rotX)
-        telemetry.addData("RotY", rotY)
-        telemetry.addData("Turn", turn)
     }
 
-    fun gamepadDrive(controller: Gamepad, multiplier: Double, telemetry: Telemetry) {
-        FCDrive(
-            -controller.left_stick_y.toDouble() * multiplier,
+    fun gamepadDrive(controller: Gamepad, multiplier: Double) {
+        RCDrive(
             controller.left_stick_x.toDouble() * multiplier,
-            controller.right_stick_x.toDouble() * multiplier,
-            telemetry
+            -controller.left_stick_y.toDouble() * multiplier,
+            controller.right_stick_x.toDouble() * multiplier
         )
     }
 
@@ -132,7 +126,7 @@ class RobotConfig(hwMap: HardwareMap?) {
         BL = hardwareMap!!.get(DcMotorEx::class.java, "BL")
         BR = hardwareMap!!.get(DcMotorEx::class.java, "BR")
 
-        CLAW = hardwareMap!!.get(CRServo::class.java, "CLAW")
+        CLAW = hardwareMap!!.get(Servo::class.java, "CLAW")
 
         SLIDES = hardwareMap!!.get(DcMotorEx::class.java, "SLIDES")
 
