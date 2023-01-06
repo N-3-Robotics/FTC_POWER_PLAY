@@ -17,7 +17,7 @@ class ClawPosFinder: LinearOpMode() {
         RC = RobotConfig(hardwareMap)
         waitForStart()
         while (opModeIsActive()) {
-            RC!!.CLAW.power = ConePos.ConePosition
+            RC!!.CLAW.position = ConePos.ConePosition
             telemetry.addData("Cone Position", ConePos.ConePosition)
             telemetry.update()
         }

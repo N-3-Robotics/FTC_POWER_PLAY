@@ -68,10 +68,13 @@ object DriveConstants{
     var turn_kP = 0.01
 
     @JvmField
+    var strafeMultiplier = 1.1 // multiplier
+
+    @JvmField
     var AutoDriveTolerance = 50 // tick
 
     @JvmField
-    var AutoTurnTolerance = 1 // degree
+    var AutoTurnTolerance = 1.0 // degree
 
     @JvmField
     var ClawOpen = 0.0

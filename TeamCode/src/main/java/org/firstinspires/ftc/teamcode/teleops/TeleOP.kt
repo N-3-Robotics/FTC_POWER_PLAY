@@ -38,32 +38,14 @@ class TeleOP: LinearOpMode() {
         waitForStart()
         openClaw()
 
-        val controller1 = Gamepad() //CC1 = Current Controller 1 state
-        val controller2 = Gamepad() //CC2 = Current Controller 2 state
-
-        val pC1 = Gamepad() //PC1 = Previous Controller 1 state
-        val pC2 = Gamepad() //PC2 = Previous Controller 2 state
-
         val timer = ElapsedTime()
 
         while (opModeIsActive()) {
             timer.reset()
 
-            try {
-                pC1.copy(controller1)
-                pC2.copy(controller2)
+            telemetry.addData("Distance Sensor", ROBOT!!.CONE_SENSOR.getDistance(DistanceUnit.INCH))
 
-                controller1.copy(gamepad1)
-                controller2.copy(gamepad2)
-            } catch (e: RobotCoreException) {
-                telemetry.addData("Error", e.message)
-                telemetry.update()
-            }
-
-
-            telemetry.addData("Distance", ROBOT!!.CONE_SENSOR.getDistance(DistanceUnit.INCH))
-
-            ROBOT!!.gamepadDrive(controller1, 1.0)
+            ROBOT!!.gamepadDrive(gamepad1, 1.0)
 
             ROBOT!!.SLIDES.power = -gamepad2.right_stick_y.toDouble() * DriveConstants.SlidesSpeed
 
@@ -85,9 +67,6 @@ class TeleOP: LinearOpMode() {
             } else {
                 telemetry.addData("Cone Sensor", "No Cone Detected")
             }
-
-
-            telemetry.addData("Cone Sensor", ROBOT!!.CONE_SENSOR.getDistance(DistanceUnit.INCH))
 
             telemetry.addData("Heading", QOL.radToDeg(ROBOT!!.botHeading).toString() + "°")
             //add the looptime of the program to the telemetry

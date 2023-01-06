@@ -21,14 +21,14 @@ class Auto: LinearOpMode() {
     var ROBOT: RobotConfig? = null
     fun forward(tiles: Int){
         val target = ROBOT!!.currentPosition + inchesToTicks(tiles * tileLength)
-        while (abs(ROBOT!!.currentPosition - target) > AutoDriveTolerance) {
+        while (abs(target - ROBOT!!.currentPosition) > AutoDriveTolerance) {
 
             val power = calcPower(target, ROBOT!!.currentPosition)
 
             ROBOT!!.RCDrive(power, 0.0, 0.0)
             telemetry.addData("Position", ROBOT!!.currentPosition)
             telemetry.addData("Target", target)
-            telemetry.addData("Distance Remaining", abs(ROBOT!!.currentPosition - target))
+            telemetry.addData("Distance Remaining", abs(target - ROBOT!!.currentPosition))
             telemetry.addData("Power", power)
             telemetry.update()
         }
@@ -36,14 +36,14 @@ class Auto: LinearOpMode() {
     }
     fun backward(tiles: Int){
         val target = ROBOT!!.currentPosition + inchesToTicks(-tiles * tileLength)
-        while (abs(ROBOT!!.currentPosition - target) > AutoDriveTolerance) {
+        while (abs(target - ROBOT!!.currentPosition) > AutoDriveTolerance) {
 
             val power = calcPower(target, ROBOT!!.currentPosition)
 
             ROBOT!!.RCDrive(power, 0.0, 0.0)
             telemetry.addData("Position", ROBOT!!.currentPosition)
             telemetry.addData("Target", target)
-            telemetry.addData("Distance Remaining", abs(ROBOT!!.currentPosition - target))
+            telemetry.addData("Distance Remaining", abs(target - ROBOT!!.currentPosition))
             telemetry.addData("Power", power)
             telemetry.update()
         }
@@ -51,14 +51,14 @@ class Auto: LinearOpMode() {
     }
     fun left(tiles: Int){
         val target = ROBOT!!.currentPosition + inchesToTicks(-tiles * tileLength)
-        while (abs(ROBOT!!.currentPosition - target) > AutoDriveTolerance) {
+        while (abs(target - ROBOT!!.currentPosition) > AutoDriveTolerance) {
 
             val power = calcPower(target, ROBOT!!.currentPosition)
 
             ROBOT!!.RCDrive(0.0, power, 0.0)
             telemetry.addData("Position", ROBOT!!.currentPosition)
             telemetry.addData("Target", target)
-            telemetry.addData("Distance Remaining", abs(ROBOT!!.currentPosition - target))
+            telemetry.addData("Distance Remaining", abs(target - ROBOT!!.currentPosition))
             telemetry.addData("Power", power)
             telemetry.update()
         }
@@ -67,7 +67,7 @@ class Auto: LinearOpMode() {
 
     fun right(tiles: Int){
         val target = ROBOT!!.currentPosition + inchesToTicks(tiles * tileLength)
-        while (abs(ROBOT!!.currentPosition - target) > AutoDriveTolerance) {
+        while (abs(target - ROBOT!!.currentPosition) > AutoDriveTolerance) {
             //start at 0.75 power, and decrease power curve-ly as the robot gets closer to the target
 
             val power = calcPower(target, ROBOT!!.currentPosition)
@@ -75,7 +75,7 @@ class Auto: LinearOpMode() {
             ROBOT!!.RCDrive(0.0, power, 0.0)
             telemetry.addData("Position", ROBOT!!.currentPosition)
             telemetry.addData("Target", target)
-            telemetry.addData("Distance Remaining", abs(ROBOT!!.currentPosition - target))
+            telemetry.addData("Distance Remaining", abs(target - ROBOT!!.currentPosition))
             telemetry.addData("Power", power)
             telemetry.update()
         }
@@ -116,6 +116,6 @@ class Auto: LinearOpMode() {
         ROBOT = RobotConfig(hardwareMap)
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
         waitForStart()
-        left(1)
+        forward(1)
     }
 }

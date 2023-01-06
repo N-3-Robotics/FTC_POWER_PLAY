@@ -1,10 +1,12 @@
 @file:Suppress("unused", "NAME_SHADOWING")
 package org.firstinspires.ftc.teamcode.utilities
 
+import android.R.attr.x
+import android.R.attr.y
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.*
-import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.strafeMultiplier
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.max
@@ -44,37 +46,23 @@ class RobotConfig(hwMap: HardwareMap?) {
         BR.power = drive - turn
     }
 
-    fun RCDrive(drive: Double, strafe: Double, turn: Double) {
-        var max: Double
-        var leftFrontPower: Double = drive + strafe + turn
-        var rightFrontPower: Double = drive - strafe - turn
-        var leftBackPower: Double = drive - strafe + turn
-        var rightBackPower: Double = drive + strafe - turn
+    fun RCDrive(y: Double, x: Double, rx: Double) {
+        val x = x * strafeMultiplier
 
-        // Normalize the values so no wheel power exceeds 100%
-        // This ensures that the robot maintains the desired motion.
+        val denominator = max(abs(y) + abs(x) + abs(rx), 1.0).toDouble()
+        val frontLeftPower: Double = (y + x + rx) / denominator
+        val backLeftPower: Double = (y - x + rx) / denominator
+        val frontRightPower: Double = (y - x - rx) / denominator
+        val backRightPower: Double = (y + x - rx) / denominator
 
-        // Normalize the values so no wheel power exceeds 100%
-        // This ensures that the robot maintains the desired motion.
-        max = max(abs(leftFrontPower), abs(rightFrontPower))
-        max = max(max, abs(leftBackPower))
-        max = max(max, abs(rightBackPower))
-
-        if (max > 1.0) {
-            leftFrontPower /= max
-            rightFrontPower /= max
-            leftBackPower /= max
-            rightBackPower /= max
-        }
-        FL.power = leftFrontPower
-        FR.power = rightFrontPower
-        BL.power = leftBackPower
-        BR.power = rightBackPower
-
+        FL.power = frontLeftPower
+        BL.power = backLeftPower
+        FR.power = frontRightPower
+        BR.power = backRightPower
     }
 
     fun FCDrive(x: Double, y: Double, turn: Double) {
-        val x = x * 1.1
+        val x = x * strafeMultiplier
         val rotX = x * cos(-botHeading) - y * sin(-botHeading)
         val rotY = x * sin(-botHeading) + y * cos(-botHeading)
 
@@ -88,8 +76,8 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     fun gamepadDrive(controller: Gamepad, multiplier: Double) {
         RCDrive(
-            controller.left_stick_x.toDouble() * multiplier,
             -controller.left_stick_y.toDouble() * multiplier,
+            controller.left_stick_x.toDouble() * multiplier,
             controller.right_stick_x.toDouble() * multiplier
         )
     }
