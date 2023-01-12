@@ -1,8 +1,6 @@
 @file:Suppress("unused", "NAME_SHADOWING")
 package org.firstinspires.ftc.teamcode.utilities
 
-import android.R.attr.x
-import android.R.attr.y
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.*
@@ -49,22 +47,25 @@ class RobotConfig(hwMap: HardwareMap?) {
     fun RCDrive(y: Double, x: Double, rx: Double) {
         val x = x * strafeMultiplier
 
-        val denominator = max(abs(y) + abs(x) + abs(rx), 1.0).toDouble()
-        val frontLeftPower: Double = (y + x + rx) / denominator
-        val backLeftPower: Double = (y - x + rx) / denominator
-        val frontRightPower: Double = (y - x - rx) / denominator
-        val backRightPower: Double = (y + x - rx) / denominator
+        //val denominator = max(abs(y) + abs(x) + abs(rx), 1.0).toDouble()
 
-        FL.power = frontLeftPower
-        BL.power = backLeftPower
-        FR.power = frontRightPower
-        BR.power = backRightPower
+        // Combine the joystick requests for each axis-motion to determine each wheel's power.
+        // Set up a variable for each drive wheel to save the power level for telemetry.
+        val leftFrontPower: Double = y + x + rx
+        val rightFrontPower: Double = y - x - rx
+        val leftBackPower: Double = y - x + rx
+        val rightBackPower: Double = y + x - rx
+
+        FL.power = leftFrontPower
+        BL.power = leftBackPower
+        FR.power = rightFrontPower
+        BR.power = rightBackPower
     }
 
-    fun FCDrive(x: Double, y: Double, turn: Double) {
+    fun FCDrive(y: Double, x: Double, turn: Double) {
         val x = x * strafeMultiplier
         val rotX = x * cos(-botHeading) - y * sin(-botHeading)
-        val rotY = x * sin(-botHeading) + y * cos(-botHeading)
+        val rotY = y * sin(-botHeading) + x * cos(-botHeading)
 
         val denominator = max(abs(y) + abs(x) + abs(turn), 1.0)
 
@@ -121,8 +122,8 @@ class RobotConfig(hwMap: HardwareMap?) {
         CONE_SENSOR = hardwareMap!!.get(Rev2mDistanceSensor::class.java, "CONE_SENSOR")
 
 
+        FL.direction = DcMotorSimple.Direction.REVERSE
         BL.direction = DcMotorSimple.Direction.REVERSE
-        BR.direction = DcMotorSimple.Direction.REVERSE
 
         //CLAW.direction = Servo.Direction.REVERSE
 
@@ -131,7 +132,13 @@ class RobotConfig(hwMap: HardwareMap?) {
         BR.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         BL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
+        FR.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        FL.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        BR.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        BL.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+
         SLIDES.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        SLIDES.direction = DcMotorSimple.Direction.REVERSE
 
         IMU = hardwareMap!!.get(BNO055IMU::class.java, "imu")
         val parameters = BNO055IMU.Parameters()

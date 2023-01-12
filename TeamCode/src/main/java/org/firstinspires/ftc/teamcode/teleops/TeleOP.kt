@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.utilities.*
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawClose
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawOpen
+import java.lang.Math.abs
 
 @TeleOp(name = "TeleOp")
 class TeleOP: LinearOpMode() {
@@ -43,11 +44,13 @@ class TeleOP: LinearOpMode() {
         while (opModeIsActive()) {
             timer.reset()
 
-            telemetry.addData("Distance Sensor", ROBOT!!.CONE_SENSOR.getDistance(DistanceUnit.INCH))
+            val distanceSensorReading = ROBOT!!.CONE_SENSOR.getDistance(DistanceUnit.INCH);
+
+            telemetry.addData("Distance Sensor", distanceSensorReading)
 
             ROBOT!!.gamepadDrive(gamepad1, 1.0)
 
-            ROBOT!!.SLIDES.power = -gamepad2.right_stick_y.toDouble() * DriveConstants.SlidesSpeed
+            ROBOT!!.SLIDES.power = gamepad2.right_stick_y.toDouble() * DriveConstants.SlidesSpeed
 
             // setup the claw motor to open and close
             when {
@@ -60,7 +63,7 @@ class TeleOP: LinearOpMode() {
             }
 
 
-            if (ROBOT!!.CONE_SENSOR.getDistance(DistanceUnit.INCH) <= 2.3) {
+            if (distanceSensorReading <= 2.3 && kotlin.math.abs(ROBOT!!.SLIDES.currentPosition) <500) { //change this value to more or less if it doesn't work
                 telemetry.addData("Cone Sensor", "Cone Detected")
                 closeClaw()
 
