@@ -61,7 +61,7 @@ object DriveConstants{
     var drive_kP = 0.04
 
     @JvmField
-    var turn_kP = 0.02
+    var turn_kP = 0.04
 
     @JvmField
     var strafeMultiplier = 1.1 // multiplier
@@ -70,7 +70,7 @@ object DriveConstants{
     var AutoDriveTolerance = 50 // tick
 
     @JvmField
-    var AutoTurnTolerance = 0.5 // degree
+    var AutoTurnTolerance = 1 // degree
 
     @JvmField
     var ClawOpen = 0.52
@@ -80,6 +80,15 @@ object DriveConstants{
 
     @JvmField
     var SlidesSpeed = 1.0
+
+    @JvmField
+    var SlidesMax = 5359
+
+    @JvmField
+    var SlidesMin = 0
+
+    @JvmField
+    var HoldingPower = 0.0001
 }
 
 // create an enum class where each value is a double that represents the strength of the rumble

@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.utilities
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.*
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesMin
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.strafeMultiplier
 import kotlin.math.abs
 import kotlin.math.cos
@@ -34,6 +36,32 @@ class RobotConfig(hwMap: HardwareMap?) {
         get() {
             return IMU.angularOrientation.firstAngle
         }
+
+    var zeroPowerBehavior: DcMotor.ZeroPowerBehavior
+        get() {
+            return FL.zeroPowerBehavior
+        }
+        set(value) {
+            FL.zeroPowerBehavior = value
+            FR.zeroPowerBehavior = value
+            BL.zeroPowerBehavior = value
+            BR.zeroPowerBehavior = value
+        }
+
+    var mode: DcMotor.RunMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        set(value) {
+            FL.mode = value
+            FR.mode = value
+            BL.mode = value
+            BR.mode = value
+            field = value
+        }
+
+    val coneDetected: Boolean
+        get() {
+            return CONE_SENSOR.getDistance(DistanceUnit.INCH) <= 2.3 && abs(SLIDES.currentPosition) < 500
+        }
+
 
     private var hardwareMap: HardwareMap? = null
 
@@ -138,7 +166,10 @@ class RobotConfig(hwMap: HardwareMap?) {
         BL.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
         SLIDES.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        SLIDES.direction = DcMotorSimple.Direction.REVERSE
+
+        SLIDES.targetPosition = 0
+        SLIDES.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        SLIDES.mode = DcMotor.RunMode.RUN_USING_ENCODER
 
         IMU = hardwareMap!!.get(BNO055IMU::class.java, "imu")
         val parameters = BNO055IMU.Parameters()

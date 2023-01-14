@@ -28,7 +28,7 @@ import org.openftc.easyopencv.OpenCvWebcam
 import kotlin.math.abs
 
 
-@Autonomous(name = "Blue Left")
+@Autonomous(name = "Cone Parking")
 class BlueLeft: LinearOpMode() {
     var ROBOT: RobotConfig? = null
     fun forward(centimeters: Double){
@@ -212,9 +212,8 @@ class BlueLeft: LinearOpMode() {
             21 -> {
                 forward(30.0 * 2.540)
                 turnLeft()
-                forward(16.0 * 2.540)
+                forward(20.0 * 2.540)
                 turnRight()
-                forward(10 * 2.540)
             }
             22 -> {
                 forward(30.0 * 2.540)
@@ -222,9 +221,8 @@ class BlueLeft: LinearOpMode() {
             23 -> {
                 forward(30.0 * 2.540)
                 turnRight()
-                forward(16.0 * 2.540)
+                forward(20.0 * 2.540)
                 turnLeft()
-                forward(10 * 2.540)
             }
         }
         while(ROBOT!!.FR.isBusy && !isStopRequested){

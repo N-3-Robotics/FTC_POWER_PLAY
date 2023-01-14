@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.exception.RobotCoreException
 import com.qualcomm.robotcore.hardware.CRServo
+import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
@@ -13,6 +14,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.utilities.*
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawClose
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawOpen
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.HoldingPower
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesMax
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesMin
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesSpeed
 import java.lang.Math.abs
 
 @TeleOp(name = "TeleOp")
@@ -44,13 +49,7 @@ class TeleOP: LinearOpMode() {
         while (opModeIsActive()) {
             timer.reset()
 
-            val distanceSensorReading = ROBOT!!.CONE_SENSOR.getDistance(DistanceUnit.INCH);
-
-            telemetry.addData("Distance Sensor", distanceSensorReading)
-
             ROBOT!!.gamepadDrive(gamepad1, 1.0)
-
-            ROBOT!!.SLIDES.power = gamepad2.right_stick_y.toDouble() * DriveConstants.SlidesSpeed
 
             // setup the claw motor to open and close
             when {
@@ -62,18 +61,40 @@ class TeleOP: LinearOpMode() {
                 }
             }
 
+            if (gamepad2.right_stick_y.toDouble() == 0.0) {
+                ROBOT!!.SLIDES.power = HoldingPower
+            }
+            else {
+                if (ROBOT!!.SLIDES.currentPosition > SlidesMax) {
+                    ROBOT!!.SLIDES.power = -0.1
+                }
+                else if (ROBOT!!.SLIDES.currentPosition < SlidesMin){
+                    ROBOT!!.SLIDES.power = 0.1
+                }
+                else {
+                    ROBOT!!.SLIDES.power = -gamepad2.right_stick_y.toDouble() * SlidesSpeed
+                }
+            }
 
-            if (distanceSensorReading <= 2.3 && kotlin.math.abs(ROBOT!!.SLIDES.currentPosition) <500) { //change this value to more or less if it doesn't work
+            if (ROBOT!!.coneDetected && ROBOT!!.SLIDES.currentPosition < 500) {
                 telemetry.addData("Cone Sensor", "Cone Detected")
                 closeClaw()
-
+                ROBOT!!.SLIDES.targetPosition += 200
+                ROBOT!!.SLIDES.mode = DcMotor.RunMode.RUN_TO_POSITION
+                ROBOT!!.SLIDES.power = 1.0
+                while (ROBOT!!.SLIDES.isBusy) {
+                    //Do Nothing
+                }
+                ROBOT!!.SLIDES.mode = DcMotor.RunMode.RUN_USING_ENCODER
             } else {
                 telemetry.addData("Cone Sensor", "No Cone Detected")
             }
 
-            telemetry.addData("Heading", QOL.radToDeg(ROBOT!!.botHeading).toString() + "°")
             //add the looptime of the program to the telemetry
             telemetry.addData("Loop Time", timer.milliseconds())
+
+            telemetry.addData("Slides Position", ROBOT!!.SLIDES.currentPosition)
+
             telemetry.update()
         }
         
