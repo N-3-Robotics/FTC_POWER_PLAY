@@ -12,14 +12,14 @@ import kotlin.math.sin
 
 
 class RobotConfig(hwMap: HardwareMap?) {
-    var FL: DcMotorEx
-    var FR: DcMotorEx
-    var BL: DcMotorEx
-    var BR: DcMotorEx
+    var fl: DcMotorEx
+    var fr: DcMotorEx
+    var bl: DcMotorEx
+    var br: DcMotorEx
 
-    var SLIDES: DcMotorEx
+    var slides: DcMotorEx
 
-    var CLAW: Servo
+    var claw: Servo
 
     var CONE_SENSOR: Rev2mDistanceSensor
 
@@ -27,7 +27,7 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     val currentPosition: Int
         get() {
-            return (FL.currentPosition + FR.currentPosition + BL.currentPosition + BR.currentPosition) / 4
+            return (fl.currentPosition + fr.currentPosition + bl.currentPosition + br.currentPosition) / 4
         }
 
     val botHeading: Float
@@ -38,10 +38,10 @@ class RobotConfig(hwMap: HardwareMap?) {
     private var hardwareMap: HardwareMap? = null
 
     fun funnyDrive(drive: Double, turn: Double){
-        FL.power = drive + turn
-        FR.power = drive - turn
-        BL.power = drive + turn
-        BR.power = drive - turn
+        fl.power = drive + turn
+        fr.power = drive - turn
+        bl.power = drive + turn
+        br.power = drive - turn
     }
 
     fun RCDrive(y: Double, x: Double, rx: Double) {
@@ -56,10 +56,10 @@ class RobotConfig(hwMap: HardwareMap?) {
         val leftBackPower: Double = y - x + rx
         val rightBackPower: Double = y + x - rx
 
-        FL.power = leftFrontPower
-        BL.power = leftBackPower
-        FR.power = rightFrontPower
-        BR.power = rightBackPower
+        fl.power = leftFrontPower
+        bl.power = leftBackPower
+        fr.power = rightFrontPower
+        br.power = rightBackPower
     }
 
     fun FCDrive(y: Double, x: Double, turn: Double) {
@@ -69,10 +69,10 @@ class RobotConfig(hwMap: HardwareMap?) {
 
         val denominator = max(abs(y) + abs(x) + abs(turn), 1.0)
 
-        FL.power = (rotY + rotX + turn) / denominator
-        BL.power = (rotY - rotX + turn) / denominator
-        FR.power = (rotY - rotX - turn) / denominator
-        BR.power = (rotY + rotX - turn) / denominator
+        fl.power = (rotY + rotX + turn) / denominator
+        bl.power = (rotY - rotX + turn) / denominator
+        fr.power = (rotY - rotX - turn) / denominator
+        br.power = (rotY + rotX - turn) / denominator
     }
 
     fun gamepadDrive(controller: Gamepad, multiplier: Double) {
@@ -110,35 +110,35 @@ class RobotConfig(hwMap: HardwareMap?) {
         hardwareMap = hwMap
 
 
-        FL = hardwareMap!!.get(DcMotorEx::class.java, "FL")
-        FR = hardwareMap!!.get(DcMotorEx::class.java, "FR")
-        BL = hardwareMap!!.get(DcMotorEx::class.java, "BL")
-        BR = hardwareMap!!.get(DcMotorEx::class.java, "BR")
+        fl = hardwareMap!!.get(DcMotorEx::class.java, "fl")
+        fr = hardwareMap!!.get(DcMotorEx::class.java, "fr")
+        bl = hardwareMap!!.get(DcMotorEx::class.java, "bl")
+        br = hardwareMap!!.get(DcMotorEx::class.java, "br")
 
-        CLAW = hardwareMap!!.get(Servo::class.java, "CLAW")
+        claw = hardwareMap!!.get(Servo::class.java, "claw")
 
-        SLIDES = hardwareMap!!.get(DcMotorEx::class.java, "SLIDES")
+        slides = hardwareMap!!.get(DcMotorEx::class.java, "slides")
 
-        CONE_SENSOR = hardwareMap!!.get(Rev2mDistanceSensor::class.java, "CONE_SENSOR")
+        CONE_SENSOR = hardwareMap!!.get(Rev2mDistanceSensor::class.java, "coneDetect")
 
 
-        FL.direction = DcMotorSimple.Direction.REVERSE
-        BL.direction = DcMotorSimple.Direction.REVERSE
+        fl.direction = DcMotorSimple.Direction.REVERSE
+        bl.direction = DcMotorSimple.Direction.REVERSE
 
-        //CLAW.direction = Servo.Direction.REVERSE
+        //claw.direction = Servo.Direction.REVERSE
 
-        FR.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        FL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        BR.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        BL.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        br.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        bl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
-        FR.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        FL.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        BR.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        BL.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        fr.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        fl.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        br.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        bl.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
-        SLIDES.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        SLIDES.direction = DcMotorSimple.Direction.REVERSE
+        slides.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        slides.direction = DcMotorSimple.Direction.REVERSE
 
         IMU = hardwareMap!!.get(BNO055IMU::class.java, "imu")
         val parameters = BNO055IMU.Parameters()

@@ -19,10 +19,10 @@ import java.lang.Math.abs
 class TeleOP: LinearOpMode() {
     var ROBOT: RobotConfig? = null
 
-    fun closeClaw(claw: Servo = ROBOT!!.CLAW) {
+    fun closeClaw(claw: Servo = ROBOT!!.claw) {
         claw.position = ClawClose
     }
-    fun openClaw(claw: Servo = ROBOT!!.CLAW) {
+    fun openClaw(claw: Servo = ROBOT!!.claw) {
         claw.position = ClawOpen
     }
 
@@ -50,7 +50,7 @@ class TeleOP: LinearOpMode() {
 
             ROBOT!!.gamepadDrive(gamepad1, 1.0)
 
-            ROBOT!!.SLIDES.power = gamepad2.right_stick_y.toDouble() * DriveConstants.SlidesSpeed
+            ROBOT!!.slides.power = gamepad2.right_stick_y.toDouble() * DriveConstants.SlidesSpeed
 
             // setup the claw motor to open and close
             when {
@@ -63,7 +63,7 @@ class TeleOP: LinearOpMode() {
             }
 
 
-            if (distanceSensorReading <= 2.3 && kotlin.math.abs(ROBOT!!.SLIDES.currentPosition) <500) { //change this value to more or less if it doesn't work
+            if (distanceSensorReading <= 2.3 && kotlin.math.abs(ROBOT!!.slides.currentPosition) <500) { //change this value to more or less if it doesn't work
                 telemetry.addData("Cone Sensor", "Cone Detected")
                 closeClaw()
 

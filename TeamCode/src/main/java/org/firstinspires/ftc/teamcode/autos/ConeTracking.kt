@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.autos
 import android.annotation.SuppressLint
 import com.acmerobotics.dashboard.FtcDashboard
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.pipelines.*
@@ -16,7 +17,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation
 import org.openftc.easyopencv.OpenCvWebcam
 
 
-
+@Disabled
 @Autonomous(name = "Red Cone Tracking")
 class RedConeTracking: LinearOpMode(){
 

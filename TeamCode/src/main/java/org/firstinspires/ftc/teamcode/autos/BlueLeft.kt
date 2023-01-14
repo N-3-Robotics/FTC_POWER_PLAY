@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode.autos
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
@@ -27,7 +28,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation
 import org.openftc.easyopencv.OpenCvWebcam
 import kotlin.math.abs
 
-
+@Disabled
 @Autonomous(name = "Blue Left")
 class BlueLeft: LinearOpMode() {
     var ROBOT: RobotConfig? = null
@@ -104,14 +105,14 @@ class BlueLeft: LinearOpMode() {
         }
     }
 
-    fun closeClaw(claw: Servo = ROBOT!!.CLAW) {
+    fun closeClaw(claw: Servo = ROBOT!!.claw) {
         claw.position = DriveConstants.ClawClose + 0.1
     }
-    fun openClaw(claw: Servo = ROBOT!!.CLAW) {
+    fun openClaw(claw: Servo = ROBOT!!.claw) {
         claw.position = DriveConstants.ClawOpen
     }
 
-    fun slightRaise(lift: DcMotorEx = ROBOT!!.SLIDES){
+    fun slightRaise(lift: DcMotorEx = ROBOT!!.slides){
         lift.power = 0.3
         sleep(800)
         lift.power = 0.1
@@ -204,9 +205,9 @@ class BlueLeft: LinearOpMode() {
         }
         /*** wait for start ***/
         waitForStart()
-        ROBOT!!.SLIDES.targetPosition=-300
-        ROBOT!!.SLIDES.mode= DcMotor.RunMode.RUN_TO_POSITION
-        ROBOT!!.SLIDES.power=1.0
+        ROBOT!!.slides.targetPosition=-300
+        ROBOT!!.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
+        ROBOT!!.slides.power=1.0
         /*** run paths ***/
         when(parkingId) {
             21 -> {
@@ -227,7 +228,7 @@ class BlueLeft: LinearOpMode() {
                 forward(10 * 2.540)
             }
         }
-        while(ROBOT!!.FR.isBusy && !isStopRequested){
+        while(ROBOT!!.fr.isBusy && !isStopRequested){
             //do nothing
         }
     }
