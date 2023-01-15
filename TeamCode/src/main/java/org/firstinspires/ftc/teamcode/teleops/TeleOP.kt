@@ -65,15 +65,19 @@ class TeleOP: LinearOpMode() {
                 ROBOT!!.SLIDES.power = HoldingPower
             }
             else {
-                if (ROBOT!!.SLIDES.currentPosition > SlidesMax) {
-                    ROBOT!!.SLIDES.power = -0.1
-                }
-                else if (ROBOT!!.SLIDES.currentPosition < SlidesMin){
-                    ROBOT!!.SLIDES.power = 0.1
-                }
-                else {
-                    ROBOT!!.SLIDES.power = -gamepad2.right_stick_y.toDouble() * SlidesSpeed
-                }
+                 if (!ROBOT!!.SLIDES.isBusy){
+                     ROBOT!!.SLIDES.mode = DcMotor.RunMode.RUN_USING_ENCODER
+                     if (ROBOT!!.SLIDES.currentPosition > SlidesMax) {
+                         ROBOT!!.SLIDES.power = -0.1
+                     }
+                     else if (ROBOT!!.SLIDES.currentPosition < SlidesMin){
+                         ROBOT!!.SLIDES.power = 0.1
+                     }
+                     else {
+
+                         ROBOT!!.SLIDES.power = -gamepad2.right_stick_y.toDouble() * SlidesSpeed
+                     }
+                 }
             }
 
             if (ROBOT!!.coneDetected && ROBOT!!.SLIDES.currentPosition < 500) {
@@ -82,15 +86,11 @@ class TeleOP: LinearOpMode() {
                 ROBOT!!.SLIDES.targetPosition += 200
                 ROBOT!!.SLIDES.mode = DcMotor.RunMode.RUN_TO_POSITION
                 ROBOT!!.SLIDES.power = 1.0
-                while (ROBOT!!.SLIDES.isBusy) {
-                    //Do Nothing
-                }
-                ROBOT!!.SLIDES.mode = DcMotor.RunMode.RUN_USING_ENCODER
             } else {
                 telemetry.addData("Cone Sensor", "No Cone Detected")
             }
 
-            //add the looptime of the program to the telemetry
+            //add the loop time of the program to the telemetry
             telemetry.addData("Loop Time", timer.milliseconds())
 
             telemetry.addData("Slides Position", ROBOT!!.SLIDES.currentPosition)
