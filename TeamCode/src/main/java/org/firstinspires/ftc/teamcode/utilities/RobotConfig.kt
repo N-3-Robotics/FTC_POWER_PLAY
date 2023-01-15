@@ -18,11 +18,9 @@ class RobotConfig(hwMap: HardwareMap?) {
     var br: DcMotorEx
 
     var slides: DcMotorEx
-
     var claw: Servo
-
-    var CONE_SENSOR: Rev2mDistanceSensor
-
+    var cone: Rev2mDistanceSensor
+    var slidesReset: DigitalChannel
     var IMU: BNO055IMU
 
     val currentPosition: Int
@@ -116,10 +114,9 @@ class RobotConfig(hwMap: HardwareMap?) {
         br = hardwareMap!!.get(DcMotorEx::class.java, "br")
 
         claw = hardwareMap!!.get(Servo::class.java, "claw")
-
         slides = hardwareMap!!.get(DcMotorEx::class.java, "slides")
-
-        CONE_SENSOR = hardwareMap!!.get(Rev2mDistanceSensor::class.java, "coneDetect")
+        cone = hardwareMap!!.get(Rev2mDistanceSensor::class.java, "cone")
+        slidesReset = hardwareMap!!.get(DigitalChannel::class.java, "slidesReset")
 
 
         fl.direction = DcMotorSimple.Direction.REVERSE
@@ -145,5 +142,13 @@ class RobotConfig(hwMap: HardwareMap?) {
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC
         IMU.initialize(parameters)
+    }
+    infix fun slidesGo(position:String)=apply{
+        val slideSet = CursedCode()
+        slides.mode=DcMotor.RunMode.RUN_TO_POSITION
+        slides.targetPosition=slideSet go position
+    }
+    infix fun withPower(power:Double)=apply{
+        slides.power=power
     }
 }

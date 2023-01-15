@@ -1,22 +1,20 @@
-package org.firstinspires.ftc.teamcode.teleops
+package org.firstinspires.ftc.teamcode.teleop
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.exception.RobotCoreException
-import com.qualcomm.robotcore.hardware.CRServo
-import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.utilities.*
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawClose
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawOpen
-import java.lang.Math.abs
 
-@TeleOp(name = "TeleOp")
-class TeleOP: LinearOpMode() {
+@Disabled
+@TeleOp(name = "NOT A TeleOp")
+class NOTTeleOP: LinearOpMode() {
     var ROBOT: RobotConfig? = null
 
     fun closeClaw(claw: Servo = ROBOT!!.claw) {
@@ -44,7 +42,7 @@ class TeleOP: LinearOpMode() {
         while (opModeIsActive()) {
             timer.reset()
 
-            val distanceSensorReading = ROBOT!!.CONE_SENSOR.getDistance(DistanceUnit.INCH);
+            val distanceSensorReading = ROBOT!!.cone.getDistance(DistanceUnit.INCH);
 
             telemetry.addData("Distance Sensor", distanceSensorReading)
 
