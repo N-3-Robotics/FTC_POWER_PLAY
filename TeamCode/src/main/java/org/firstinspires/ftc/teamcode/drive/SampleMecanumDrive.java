@@ -135,7 +135,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         claw = hardwareMap.servo.get("claw");
-        coneSensor = hardwareMap.get(Rev2mDistanceSensor.class, "coneDetect");
+        coneSensor = hardwareMap.get(Rev2mDistanceSensor.class, "cone");
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();

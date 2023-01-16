@@ -3,14 +3,18 @@ package org.firstinspires.ftc.teamcode.teleop
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.outoftheboxrobotics.photoncore.PhotonCore
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.clawClosePos
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidesDown
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidesLow
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidesMid
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidesHigh
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.clawOpenPos
+import org.firstinspires.ftc.teamcode.utilities.CursedCode.Companion.aboveGround
 import org.firstinspires.ftc.teamcode.utilities.CursedCode.Companion.down
 import org.firstinspires.ftc.teamcode.utilities.CursedCode.Companion.high
 import org.firstinspires.ftc.teamcode.utilities.CursedCode.Companion.low
@@ -28,19 +32,21 @@ import kotlin.math.abs
 @Config()
 object TeleopVariables {
     @JvmField
-    var clawOpenPos=0.6
+    var clawOpenPos=0.52
     @JvmField
-    var clawClosePos=0.52
+    var clawClosePos=0.6
     @JvmField
-    var slidesLow=-2000
+    var slidesLow=2000
     @JvmField
-    var slidesMid=-3500
+    var slidesMid=3500
     @JvmField
-    var slidesHigh=-5000
+    var slidesHigh=5000
     @JvmField
-    var slidesDown=-200
+    var slidesDown=0
+    @JvmField
+    var slidesAboveGround = 500
 }
-@TeleOp(name="Turret Teleop", group="TeleOp")
+@TeleOp(name="Working Teleop", group="TeleOp")
 class OurTeleOp : LinearOpMode() {
     companion object {
         const val max: Double = 1.0
@@ -56,6 +62,7 @@ class OurTeleOp : LinearOpMode() {
     }
 
     override fun runOpMode() {
+        PhotonCore.enable()
         val dashboard=FtcDashboard.getInstance()
         var telemetry=MultipleTelemetry(telemetry, dashboard.telemetry)
         telemetry.addLine("Robot has been turned on. Run for your life!")
@@ -66,10 +73,6 @@ class OurTeleOp : LinearOpMode() {
         /*** controller settings  */
         val lightRumble = 0.4
         val strongRumble = 0.75
-        var lastLeftBump=false
-        var lastRightBump=false
-        var leftBump=false
-        var rightBump=false
         var lastliftState=false
         /*** A few more variables  */
         var m1=.5 //Speed multiplier
@@ -84,6 +87,7 @@ class OurTeleOp : LinearOpMode() {
         robotConfig!!.slides.mode=DcMotor.RunMode.RUN_USING_ENCODER
         var liftState=LiftState.MANUAL
         var slideHeight=0
+        var coneGrabbed = false
         waitForStart()
 
 
@@ -95,34 +99,54 @@ class OurTeleOp : LinearOpMode() {
             val currentSystemTime=System.currentTimeMillis()
             telemetry.addData("Time between frame: ", currentSystemTime-lastTime)
             lastTime=currentSystemTime
+
+            /*** bulk read stuff ***/
             var slideResetState=robotConfig!!.slidesReset.state
+            val slidesEncoderPos=robotConfig!!.slides.currentPosition
+            if (slidesEncoderPos < 750){
+                val distanceToCone = robotConfig!!.cone.getDistance(DistanceUnit.INCH)
+                telemetry.addData("Distance to cone", distanceToCone)
+                /**** Auto-gripping control ***/
+                if (distanceToCone < 2.3 && slidesEncoderPos < 500) {
+                    robotConfig!!.claw.position = clawClosePos
+                    coneGrabbed = true
+                } else {
+                    coneGrabbed = false
+                }
+            }
 
             /**** new slides fsm ***/
             when(liftState) {
-                LiftState.MANUAL -> if (gamepad2.circle || gamepad2.square || gamepad2.triangle || gamepad2.cross) {
+                LiftState.MANUAL -> if (gamepad2.circle || gamepad2.square || gamepad2.triangle || gamepad2.cross || coneGrabbed) {
                     liftState = LiftState.AUTO
                 } else if (!lastliftState) { //check if reset switch is triggered (need to check if it was not triggered last time)
                     robotConfig!!.slides.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                } else {
+                } else if (abs(slidesEncoderPos) > 5300 ) {
+                    robotConfig!!.slides.power = gamepad2.left_trigger.toDouble()
+                }
+                else {
                     robotConfig!!.slides.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
                     robotConfig!!.slides.power =
                         gamepad2.right_trigger.toDouble() - gamepad2.left_trigger.toDouble()
                 }
                 LiftState.AUTO -> if (gamepad2.cross){
                     slideHeight = slidesDown
-                    robotConfig!! slidesGo down withPower -some
+                    robotConfig!! slidesGo down withPower some
                 }
                 else if (gamepad2.triangle){
                     slideHeight = slidesHigh
-                    robotConfig!! slidesGo high withPower -some
+                    robotConfig!! slidesGo high withPower some
                 }
                 else if (gamepad2.square){
                     slideHeight = slidesMid
-                    robotConfig!! slidesGo mid withPower -some
+                    robotConfig!! slidesGo mid withPower some
                 }
                 else if (gamepad2.circle){
                     slideHeight = slidesLow
-                    robotConfig!! slidesGo low withPower -some
+                    robotConfig!! slidesGo low withPower some
+                }
+                else if (coneGrabbed){
+                    robotConfig!! slidesGo aboveGround withPower max
                 }
                 else if (gamepad2.ps || gamepad2.right_trigger.toDouble() > 0.25 || gamepad2.left_trigger.toDouble() > 0.25)
                 {
@@ -133,13 +157,15 @@ class OurTeleOp : LinearOpMode() {
                 lastliftState=slideResetState
 
 
-            /***** slides control ****/
+            /***** claw control ****/
             when {
                 gamepad2.right_bumper ->{
-                    robotConfig!!.claw.position= clawOpenPos
+                    robotConfig!!.claw.position= clawClosePos
+                    coneGrabbed = false
                 }
                 gamepad2.left_bumper ->{
-                    robotConfig!!.claw.position= TeleopVariables.clawClosePos
+                    robotConfig!!.claw.position= clawOpenPos
+                    coneGrabbed = false
                 }
             }
 
@@ -164,13 +190,13 @@ class OurTeleOp : LinearOpMode() {
             }
 
             /******************* Warning, math ahead  */ //I'm lazy and therefore will NOT be using the rcdrive/gamepaddrive functions
-            var drive=gamepad1.left_stick_x.toDouble()
+            var drive=-gamepad1.left_stick_y.toDouble()
             var strafe=-gamepad1.right_stick_x.toDouble()
-            var rotate=-gamepad1.left_stick_y.toDouble()
-            robotConfig!!.bl.power=m1*(drive+rotate+strafe)
+            var rotate=-gamepad1.left_stick_x.toDouble()
+            robotConfig!!.bl.power=m1*(drive+rotate-strafe)
             robotConfig!!.br.power=m1*(drive-rotate+strafe)
-            robotConfig!!.fr.power=m1*(-drive+rotate+strafe)
-            robotConfig!!.fl.power=m1*(-drive-rotate+strafe)
+            robotConfig!!.fr.power=m1*(drive+rotate+strafe)
+            robotConfig!!.fl.power=m1*(drive-rotate-strafe)
 
             /**************** Telemetry Stuff *****************/
             /* telemetry.addData("ry", gamepad1.right_stick_y); //use when motor connections/commands messed up
@@ -183,7 +209,7 @@ class OurTeleOp : LinearOpMode() {
             telemetry.addData("br", robotConfig.br.getCurrentPosition());
             telemetry.addData("fr", robotConfig.fr.getCurrentPosition()); */
             //telemetry.addLine("Random Stuff \n")
-            telemetry.addData("slides position", robotConfig!!.slides.currentPosition)
+            telemetry.addData("slides position", slidesEncoderPos)
             telemetry.addData("Slides target", slideHeight)
             telemetry.addData("slides State", liftState)
             telemetry.update()

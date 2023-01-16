@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.utilities
 
 import com.qualcomm.hardware.bosch.BNO055IMU
+import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.strafeMultiplier
@@ -106,7 +107,7 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     init {
         hardwareMap = hwMap
-
+        val allHubs = hardwareMap!!.getAll(LynxModule::class.java)
 
         fl = hardwareMap!!.get(DcMotorEx::class.java, "fl")
         fr = hardwareMap!!.get(DcMotorEx::class.java, "fr")
@@ -123,7 +124,9 @@ class RobotConfig(hwMap: HardwareMap?) {
         bl.direction = DcMotorSimple.Direction.REVERSE
 
         //claw.direction = Servo.Direction.REVERSE
-
+        for (hub in allHubs) {
+            hub.bulkCachingMode = LynxModule.BulkCachingMode.AUTO
+        }
         fr.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         fl.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         br.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE

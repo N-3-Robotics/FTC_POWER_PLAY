@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.autos
 
+import android.annotation.SuppressLint
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.outoftheboxrobotics.photoncore.PhotonCore
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
@@ -44,8 +46,9 @@ class ihatejava : LinearOpMode() {
     val THRESHOLD_NUM_FRAMES_NO_DETECTION_BEFORE_LOW_DECIMATION = 4
     var parkingId=0
 
+    @SuppressLint("DiscouragedApi")
     override fun runOpMode() {
-
+        PhotonCore.enable()
         //get all variables and stuff set up
         val dashboard= FtcDashboard.getInstance()
         val drive = SampleMecanumDrive(hardwareMap)
@@ -197,7 +200,7 @@ class ihatejava : LinearOpMode() {
         }
         /*** wait for start ***/
         waitForStart()
-        drive.slides.targetPosition=-300
+        drive.slides.targetPosition=300
         drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
         drive.slides.power=0.5
         /*** run paths ***/
