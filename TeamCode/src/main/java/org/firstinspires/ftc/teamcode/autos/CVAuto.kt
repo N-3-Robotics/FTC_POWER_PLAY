@@ -57,12 +57,13 @@ class RedConeTracking: LinearOpMode(){
     }
 }
 
-
+@Disabled
 @Autonomous(name = "Blue Cone Tracking")
 class BlueConeTracking: LinearOpMode(){
 
     var webcam: OpenCvWebcam? = null
     var RC: RobotConfig? = null
+    var pipeline: BluePipeline? = null
 
     @SuppressLint("DiscouragedApi")
     override fun runOpMode() {
@@ -74,7 +75,8 @@ class BlueConeTracking: LinearOpMode(){
         val cameraMonitorViewId = hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.packageName)
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName::class.java, "Webcam 1"), cameraMonitorViewId)
 
-        webcam!!.setPipeline(BluePipeline(telemetry))
+        pipeline = BluePipeline(telemetry)
+        webcam!!.setPipeline(pipeline)
 
         webcam!!.setMillisecondsPermissionTimeout(2500) // Timeout for obtaining permission is configurable. Set before opening.
 

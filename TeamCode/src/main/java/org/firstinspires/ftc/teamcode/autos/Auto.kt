@@ -3,24 +3,23 @@ package org.firstinspires.ftc.teamcode.autos
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagPipeline
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.midPole
 import org.openftc.easyopencv.OpenCvCamera
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
 import org.openftc.easyopencv.OpenCvWebcam
 
-@Autonomous(group="Real Autos", name = "Stephan's REAL AUTO")
-class ihatejava : LinearOpMode() {
+@Autonomous(name = "Left")
+class Auto : LinearOpMode() {
     /** camera stuff **/
     var camera: OpenCvCamera? = null
     var aprilTagDetectionPipeline: AprilTagPipeline? = null
@@ -49,10 +48,10 @@ class ihatejava : LinearOpMode() {
         //get all variables and stuff set up
         val dashboard= FtcDashboard.getInstance()
         val drive = SampleMecanumDrive(hardwareMap)
-        fun closeClaw(claw: Servo = drive.claw) {
+        fun closeClaw(claw: Servo = drive.CLAW) {
             claw.position = DriveConstants.ClawClose
         }
-        fun openClaw(claw: Servo = drive.claw) {
+        fun openClaw(claw: Servo = drive.CLAW) {
             claw.position = DriveConstants.ClawOpen
         }
         var telemetry= MultipleTelemetry(telemetry, dashboard.telemetry)
@@ -76,48 +75,40 @@ class ihatejava : LinearOpMode() {
             override fun onError(errorCode: Int) {}
         })
         dashboard.startCameraStream(camera, 30.0)
-        val zone1 = drive.trajectorySequenceBuilder(Pose2d(0.0, 0.0))
-            .forward(30.0)
-            .strafeLeft(13.0)
-            .addTemporalMarker(1.0){
-                drive.slides.targetPosition=DriveConstants.midPole
-                drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
-                drive.slides.power=1.0
+        val zone1 = drive.trajectorySequenceBuilder(Pose2d(-36.00, -66.00, Math.toRadians(90.0)))
+            .lineToLinearHeading(Pose2d(-36.00, -36.00, Math.toRadians(0.0))) // at tile (1, 0)
+            .addSpatialMarker(Vector2d(-36.00, -36.00)) {
+                drive.SLIDES.targetPosition = midPole
+                drive.SLIDES.mode = DcMotor.RunMode.RUN_TO_POSITION
+                drive.SLIDES.power = 1.0
+                while (drive.SLIDES.isBusy) {
+                    telemetry.addData("slides", drive.SLIDES.currentPosition)
+                    telemetry.update()
+                }
+                drive.SLIDES.power = 0.0
+                drive.SLIDES.mode = DcMotor.RunMode.RUN_USING_ENCODER
             }
-            .forward(5.0)
-            .addTemporalMarker(2.5){
+            .lineToLinearHeading(Pose2d(-26.50, -26.50, Math.toRadians(45.00))) // at junction (1, 1)
+            .addSpatialMarker(Vector2d(-26.50, -26.50)) {
                 openClaw()
-            }
-            .back(5.0)
-            .addTemporalMarker(3.5){
-                drive.slides.targetPosition=DriveConstants.aboveGround
-                drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
-                drive.slides.power=1.0
-            }
-            .turn(Math.toRadians(90.0))
-            .forward(10.0)
-            .strafeRight(37.0)
-            .forward(6.0)
-            .addTemporalMarker(12.0){
+                sleep(500)
                 closeClaw()
             }
-            .back(8.5)
-            .strafeLeft(20.0)
-            .turn(Math.toRadians(130.0))
-            .forward(8.0)
-            .addTemporalMarker(16.0){
-                openClaw()
-            }
-            .back(8.5)
-            .turn(Math.toRadians(-40.0))
-            .forward(5.0)
+            .lineToLinearHeading(Pose2d(-36.00, -36.00, Math.toRadians(90.00))) // at tile (1, 1)
+            .lineToLinearHeading(Pose2d(-36.00, -12.00, Math.toRadians(90.00)))// at tile (1, 2)
+            .lineToLinearHeading(Pose2d(-65.00, -12.00, Math.toRadians(180.00)))// // at cone stack
+            .lineToLinearHeading(Pose2d(-36.00, -12.00, Math.toRadians(90.00))) // at tile (1, 2)
+            .lineToLinearHeading(Pose2d(-27.00, -3.50, Math.toRadians(45.00)))// at junction (1, 2)
+            .lineToLinearHeading(Pose2d(-36.00, -36.00, Math.toRadians(90.00))) // at tile (1, 1)
+            .lineToLinearHeading(Pose2d(-60.00, -36.00, Math.toRadians(180.00))) // at tile (0, 1), parked
             .build()
+
         val zone2 = drive.trajectorySequenceBuilder(Pose2d(0.0, 0.0))
             .forward(55.0)
             .addTemporalMarker(1.0) {
-                drive.slides.targetPosition=DriveConstants.tallPole
-                drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
-                drive.slides.power=1.0
+                drive.SLIDES.targetPosition=DriveConstants.tallPole
+                drive.SLIDES.mode= DcMotor.RunMode.RUN_TO_POSITION
+                drive.SLIDES.power=1.0
             }
             .turn(Math.toRadians(-45.0))
             .forward(10.0)
@@ -131,9 +122,9 @@ class ihatejava : LinearOpMode() {
             .strafeRight(10.0)
             .forward(5.0)
             .addTemporalMarker(12.0){
-                drive.slides.targetPosition=DriveConstants.midPole
-                drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
-                drive.slides.power=1.0
+                drive.SLIDES.targetPosition=DriveConstants.midPole
+                drive.SLIDES.mode= DcMotor.RunMode.RUN_TO_POSITION
+                drive.SLIDES.power=1.0
             }
             .addTemporalMarker(18.0){
                 closeClaw()
@@ -197,9 +188,9 @@ class ihatejava : LinearOpMode() {
         }
         /*** wait for start ***/
         waitForStart()
-        drive.slides.targetPosition=-300
-        drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
-        drive.slides.power=0.5
+        drive.SLIDES.targetPosition=-300
+        drive.SLIDES.mode= DcMotor.RunMode.RUN_TO_POSITION
+        drive.SLIDES.power=0.5
         /*** run paths ***/
         when(parkingId) {
             21 -> drive.followTrajectorySequence(zone1)

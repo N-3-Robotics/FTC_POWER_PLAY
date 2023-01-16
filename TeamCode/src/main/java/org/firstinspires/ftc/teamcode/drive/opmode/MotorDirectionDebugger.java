@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -87,10 +85,10 @@ public class MotorDirectionDebugger extends LinearOpMode {
                 drive.setMotorPowers(0, 0, 0, 0);
                 telemetry.addLine("Running Motor: None");
             }
-            telemetry.addData("Encoder", drive.bl.getCurrentPosition());
-            telemetry.addData("Encoder", drive.fl.getCurrentPosition());
-            telemetry.addData("Encoder", drive.br.getCurrentPosition());
-            telemetry.addData("Encoder", drive.fr.getCurrentPosition());
+            telemetry.addData("Encoder", drive.BL.getCurrentPosition());
+            telemetry.addData("Encoder", drive.FL.getCurrentPosition());
+            telemetry.addData("Encoder", drive.BR.getCurrentPosition());
+            telemetry.addData("Encoder", drive.FR.getCurrentPosition());
 
             telemetry.update();
         }

@@ -20,7 +20,6 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityCons
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -74,9 +73,9 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     private TrajectoryFollower follower;
 
-    public DcMotorEx fl, bl, br, fr, slides;
-    public Servo claw;
-    public Rev2mDistanceSensor coneSensor;
+    public DcMotorEx FL, BL, BR, FR, SLIDES;
+    public Servo CLAW;
+    public Rev2mDistanceSensor CONE_SENSOR;
     private List<DcMotorEx> motors;
 
     private BNO055IMU imu;
@@ -124,18 +123,18 @@ public class SampleMecanumDrive extends MecanumDrive {
         // For example, if +Y in this diagram faces downwards, you would use AxisDirection.NEG_Y.
         BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_Z);
 
-        fl = hardwareMap.get(DcMotorEx.class, "fl");
-        bl = hardwareMap.get(DcMotorEx.class, "bl");
-        br = hardwareMap.get(DcMotorEx.class, "br");
-        fr = hardwareMap.get(DcMotorEx.class, "fr");
-        slides = hardwareMap.get(DcMotorEx.class, "slides");
-        motors = Arrays.asList(fl, bl, br, fr);
+        FL = hardwareMap.get(DcMotorEx.class, "fl");
+        BL = hardwareMap.get(DcMotorEx.class, "bl");
+        BR = hardwareMap.get(DcMotorEx.class, "br");
+        FR = hardwareMap.get(DcMotorEx.class, "fr");
+        SLIDES = hardwareMap.get(DcMotorEx.class, "slides");
+        motors = Arrays.asList(FL, BL, BR, FR);
 
-        slides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        SLIDES.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        SLIDES.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        claw = hardwareMap.servo.get("claw");
-        coneSensor = hardwareMap.get(Rev2mDistanceSensor.class, "coneDetect");
+        CLAW = hardwareMap.servo.get("claw");
+        CONE_SENSOR = hardwareMap.get(Rev2mDistanceSensor.class, "CONE_SENSOR");
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -147,17 +146,17 @@ public class SampleMecanumDrive extends MecanumDrive {
             setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
-        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         if (RUN_USING_ENCODER && MOTOR_VELO_PID != null) {
             setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
         }
 
         // TODO: reverse any motors using DcMotor.setDirection()
-        fl.setDirection(DcMotorSimple.Direction.REVERSE);
-        bl.setDirection(DcMotorSimple.Direction.REVERSE);
-        fr.setDirection(DcMotorSimple.Direction.FORWARD);
-        br.setDirection(DcMotorSimple.Direction.FORWARD);
+        FL.setDirection(DcMotorSimple.Direction.REVERSE);
+        BL.setDirection(DcMotorSimple.Direction.REVERSE);
+        FR.setDirection(DcMotorSimple.Direction.FORWARD);
+        BR.setDirection(DcMotorSimple.Direction.FORWARD);
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
 
@@ -302,10 +301,10 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-        fl.setPower(v);
-        bl.setPower(v1);
-        br.setPower(v2);
-        fr.setPower(v3);
+        FL.setPower(v);
+        BL.setPower(v1);
+        BR.setPower(v2);
+        FR.setPower(v3);
     }
 
     @Override

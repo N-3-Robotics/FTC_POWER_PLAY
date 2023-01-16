@@ -82,16 +82,19 @@ object DriveConstants{
     var SlidesSpeed = 1.0
 
     @JvmField
-    var tallPole = -6000
+    var tallPole = 5359
 
     @JvmField
-    var midPole = -4800
+    var midPole = 3693
 
     @JvmField
-    var lowPole = -2400
+    var lowPole = 1849
 
     @JvmField
-    var aboveGround = -300
+    var aboveGround = 300
+
+    @JvmField
+    var coneStack = 900
 }
 
 // create an enum class where each value is a double that represents the strength of the rumble
