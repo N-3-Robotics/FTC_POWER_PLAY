@@ -145,8 +145,8 @@ class RobotConfig(hwMap: HardwareMap?) {
     }
     infix fun slidesGo(position:String)=apply{
         val slideSet = CursedCode()
-        slides.mode=DcMotor.RunMode.RUN_TO_POSITION
         slides.targetPosition=slideSet go position
+        slides.mode=DcMotor.RunMode.RUN_TO_POSITION
     }
     infix fun withPower(power:Double)=apply{
         slides.power=power

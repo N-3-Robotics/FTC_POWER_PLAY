@@ -28,17 +28,17 @@ import kotlin.math.abs
 @Config()
 object TeleopVariables {
     @JvmField
-    var clawOpenPos=0.62
+    var clawOpenPos=0.6
     @JvmField
-    var clawClosePos=0.8
+    var clawClosePos=0.52
     @JvmField
-    var slidesLow=0
+    var slidesLow=-2000
     @JvmField
-    var slidesMid=600
+    var slidesMid=-3500
     @JvmField
-    var slidesHigh=1000
+    var slidesHigh=-5000
     @JvmField
-    var slidesDown=0
+    var slidesDown=-200
 }
 @TeleOp(name="Turret Teleop", group="TeleOp")
 class OurTeleOp : LinearOpMode() {
@@ -52,7 +52,7 @@ class OurTeleOp : LinearOpMode() {
     private var vars: VariableStuff?=null
 
     private enum class LiftState {
-        MANUAL, DOWN, LOW, MID, HIGH
+        MANUAL, AUTO
     }
 
     override fun runOpMode() {
@@ -95,184 +95,53 @@ class OurTeleOp : LinearOpMode() {
             val currentSystemTime=System.currentTimeMillis()
             telemetry.addData("Time between frame: ", currentSystemTime-lastTime)
             lastTime=currentSystemTime
-            rightBump=gamepad2.right_bumper
-            leftBump=gamepad2.left_bumper
             var slideResetState=robotConfig!!.slidesReset.state
 
-            /**** slides control state machine */
-            when(liftState){
-                LiftState.MANUAL -> if(gamepad2.right_bumper){
-                    liftState= LiftState.DOWN
+            /**** new slides fsm ***/
+            when(liftState) {
+                LiftState.MANUAL -> if (gamepad2.circle || gamepad2.square || gamepad2.triangle || gamepad2.cross) {
+                    liftState = LiftState.AUTO
+                } else if (!lastliftState) { //check if reset switch is triggered (need to check if it was not triggered last time)
+                    robotConfig!!.slides.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                } else {
+                    robotConfig!!.slides.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                    robotConfig!!.slides.power =
+                        gamepad2.right_trigger.toDouble() - gamepad2.left_trigger.toDouble()
                 }
-                else if(!lastliftState){ //check if reset switch is triggered (need to check if it was not triggered last time)
-                    robotConfig!!.slides.mode=DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                LiftState.AUTO -> if (gamepad2.cross){
+                    slideHeight = slidesDown
+                    robotConfig!! slidesGo down withPower -some
                 }
-                else{
-                    robotConfig!!.slides.mode=DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                    robotConfig!!.slides.power=gamepad2.left_stick_y.toDouble()
+                else if (gamepad2.triangle){
+                    slideHeight = slidesHigh
+                    robotConfig!! slidesGo high withPower -some
                 }
-                LiftState.DOWN -> if(gamepad2.ps){
-                    liftState= LiftState.MANUAL
+                else if (gamepad2.square){
+                    slideHeight = slidesMid
+                    robotConfig!! slidesGo mid withPower -some
                 }
-                else if(rightBump && !lastRightBump){
-                    if(slideHeight == slidesDown) {
-                        slideHeight = slidesLow
-                        robotConfig!! slidesGo low withPower -some
-                        //robotConfig!!.clawAngle.position=TeleopVariables.clawDownLow
-                        liftState= LiftState.LOW
-                    }
-                    else when(slideHeight){
-                        slidesMid -> liftState= LiftState.MID
-                        slidesLow -> liftState= LiftState.LOW
-                        slidesHigh -> liftState= LiftState.HIGH
-                    }
+                else if (gamepad2.circle){
+                    slideHeight = slidesLow
+                    robotConfig!! slidesGo low withPower -some
                 }
-                else if(leftBump && !lastLeftBump){
-                    if(slideHeight== slidesDown) {
-                        gamepad2.rumble(1.0, 0.0, 250)
-                    }
-                    else when(slideHeight){
-                        slidesMid -> liftState= LiftState.MID
-                        slidesLow -> liftState= LiftState.LOW
-                        slidesHigh -> liftState= LiftState.HIGH
-                    }
-                }
-                LiftState.LOW -> if(gamepad2.ps){
-                    liftState= LiftState.MANUAL
-                }
-                else if(rightBump && !lastRightBump){
-                    if(slideHeight== slidesLow) {
-                        slideHeight = slidesMid
-                        robotConfig!! slidesGo mid withPower -some
-                        //robotConfig!!.clawAngle.position=TeleopVariables.clawDownMid
-                        liftState= LiftState.MID
-                    }
-                    else when(slideHeight){
-                        slidesMid -> liftState= LiftState.MID
-                        slidesDown -> liftState= LiftState.DOWN
-                        slidesHigh -> liftState= LiftState.HIGH
-                    }
-                }
-                else if(leftBump && !lastLeftBump){
-                    if(slideHeight== slidesLow) {
-                        slideHeight = slidesDown
-                        robotConfig!! slidesGo down withPower some
-                        liftState= LiftState.DOWN
-                    }
-                    else when(slideHeight){
-                        slidesMid -> liftState= LiftState.MID
-                        slidesDown -> liftState= LiftState.DOWN
-                        slidesHigh -> liftState= LiftState.HIGH
-                    }
-                }
-                LiftState.MID -> if(gamepad2.ps){
-                    liftState= LiftState.MANUAL
-                }
-                else if(rightBump && !lastRightBump){
-                    if(slideHeight== slidesMid) {
-                        slideHeight = slidesHigh
-                        robotConfig!! slidesGo high withPower -some
-                        //robotConfig!!.clawAngle.position=TeleopVariables.clawDownHigh
-                        liftState= LiftState.HIGH
-                    }
-                    else when(slideHeight){
-                        slidesLow -> liftState= LiftState.LOW
-                        slidesDown -> liftState= LiftState.DOWN
-                        slidesHigh -> liftState= LiftState.HIGH
-                    }
-                }
-                else if(leftBump && !lastLeftBump){
-                    if(slideHeight== slidesMid) {
-                        slideHeight = slidesLow
-                        robotConfig!! slidesGo low withPower some
-                        //robotConfig!!.clawAngle.position=TeleopVariables.clawDownLow
-                        liftState= LiftState.LOW
-                    }
-                    else{
-                        when(slideHeight){
-                            slidesLow -> liftState= LiftState.LOW
-                            slidesDown -> liftState= LiftState.DOWN
-                            slidesHigh -> liftState= LiftState.HIGH
-                        }
-                    }
-                }
-                LiftState.HIGH -> if(gamepad2.ps){
-                    liftState= LiftState.MANUAL
-                }
-                else if(rightBump && !lastRightBump){
-                    if(slideHeight== slidesHigh) {
-                        gamepad2.rumble(0.0, 1.0, 250)
-                        robotConfig!! slidesGo high withPower -some
-                    }
-                    else when(slideHeight){
-                        slidesMid -> liftState= LiftState.MID
-                        slidesDown -> liftState= LiftState.DOWN
-                        slidesLow -> liftState= LiftState.LOW
-                    }
-                }
-                else if (leftBump && !lastLeftBump){
-                    if(slideHeight == slidesHigh) {
-                        slideHeight = slidesMid
-                        robotConfig!! slidesGo mid withPower some
-                        //robotConfig!!.clawAngle.position=TeleopVariables.clawDownMid
-                        liftState= LiftState.MID
-                    }
-                    else when(slideHeight){
-                        slidesMid -> liftState= LiftState.MID
-                        slidesDown -> liftState= LiftState.DOWN
-                        slidesLow -> liftState= LiftState.LOW
-                    }
+                else if (gamepad2.ps || gamepad2.right_trigger.toDouble() > 0.25 || gamepad2.left_trigger.toDouble() > 0.25)
+                {
+                    liftState = LiftState.MANUAL
                 }
             }
-            lastliftState=slideResetState
-            lastLeftBump=leftBump
-            lastRightBump=rightBump
 
-            if(abs(gamepad2.right_stick_y)<.1) {
-                robotConfig!!.slides.mode=DcMotor.RunMode.RUN_TO_POSITION
-                robotConfig!!.slides.targetPosition=robotConfig!!.slides.currentPosition
-                robotConfig!!.slides.power= why
-            }
-            else {
-                robotConfig!!.slides.mode=DcMotor.RunMode.RUN_USING_ENCODER
-                robotConfig!!.slides.power = -gamepad2.right_stick_y.toDouble()
-            }
+                lastliftState=slideResetState
+
 
             /***** slides control ****/
             when {
-                gamepad2.square ->{
+                gamepad2.right_bumper ->{
                     robotConfig!!.claw.position= clawOpenPos
                 }
-                gamepad2.circle ->{
+                gamepad2.left_bumper ->{
                     robotConfig!!.claw.position= TeleopVariables.clawClosePos
                 }
-                /*gamepad2.dpad_up ->{
-                    robotConfig!!.clawAngle.position=TeleopVariables.clawUp
-                }
-                gamepad2.dpad_down ->{
-                    robotConfig!!.clawAngle.position=TeleopVariables.clawDown
-                }
-                gamepad2.dpad_left ->{
-                    robotConfig!!.clawAngle.position=TeleopVariables.clawDown-.15
-                }
-                gamepad2.dpad_right ->{
-                    robotConfig!!.clawAngle.position=TeleopVariables.clawDown-.25
-                }*/
             }
-            val dpadup = gamepad2.dpad_up
-            val dpaddown = gamepad2.dpad_down
-            var dpadupnum: Double = if (dpadup){
-                1.0
-            } else{
-                0.0
-            }
-            var dpaddownnum: Double = if (dpaddown){
-                1.0
-            } else{
-                0.0
-            }
-            //robotConfig!!.slides.power=gamepad2.left_stick_y.toDouble()
-            //robotConfig!!.slides.power=-gamepad2.right_stick_y.toDouble()
 
             /***************** drive stuff beneath here  */
             when {
@@ -294,7 +163,7 @@ class OurTeleOp : LinearOpMode() {
                 }
             }
 
-            /******************* Warning, math ahead  */
+            /******************* Warning, math ahead  */ //I'm lazy and therefore will NOT be using the rcdrive/gamepaddrive functions
             var drive=gamepad1.left_stick_x.toDouble()
             var strafe=-gamepad1.right_stick_x.toDouble()
             var rotate=-gamepad1.left_stick_y.toDouble()
@@ -315,6 +184,7 @@ class OurTeleOp : LinearOpMode() {
             telemetry.addData("fr", robotConfig.fr.getCurrentPosition()); */
             //telemetry.addLine("Random Stuff \n")
             telemetry.addData("slides position", robotConfig!!.slides.currentPosition)
+            telemetry.addData("Slides target", slideHeight)
             telemetry.addData("slides State", liftState)
             telemetry.update()
 
