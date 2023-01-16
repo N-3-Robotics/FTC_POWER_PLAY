@@ -16,7 +16,7 @@ class QOL {
         fun calcPower(target: Int, current: Int): Double {
             val p = DriveConstants.drive_kP * (target - current)
             val power = 2 * (1 / (1 + Math.E.pow(-p))) - 1
-            return if (power > 0.1) {
+            return if (power > 0.2) {
                 0.2
             } else {
                 power
@@ -49,8 +49,12 @@ enum class Direction {
     FORWARD, BACKWARD, LEFT, RIGHT
 }
 
+enum class AutoMode {
+    TURN, STRAIGHT, UNKNOWN
+}
+
 enum class MotorConstants(val TICKS_PER_REV: Double, val WHEEL_DIAMETER: Double, val TICKS_PER_CENTIMETER: Double) {
-    GoBilda312(537.7, 96.0 / 1000.0, 537.7 / ((96.0 / 10) * Math.PI))
+    GoBilda312(537.7, 96.0 / 10, 537.7 / ((96.0 / 10) * Math.PI))
 }
 @Config()
 object DriveConstants{
@@ -62,6 +66,12 @@ object DriveConstants{
 
     @JvmField
     var turn_kP = 0.04
+
+    @JvmField
+    var turn_kI = 0.0
+
+    @JvmField
+    var turn_kD = 0.0
 
     @JvmField
     var strafeMultiplier = 1.1 // multiplier

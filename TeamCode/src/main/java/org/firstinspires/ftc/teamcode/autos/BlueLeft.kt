@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.Servo
+import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants
@@ -26,6 +27,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
 import org.openftc.easyopencv.OpenCvWebcam
 import kotlin.math.abs
+import kotlin.math.max
 
 
 @Autonomous(name = "Cone Parking")
@@ -33,11 +35,49 @@ class BlueLeft: LinearOpMode() {
     var ROBOT: RobotConfig? = null
     fun forward(centimeters: Double){
         val target = ROBOT!!.currentPosition + centimetersToTicks(centimeters)
+
+        val lastError = 0.0
+
+        var integralSum = 0.0
+
+        val timer = ElapsedTime()
         while (abs(target - ROBOT!!.currentPosition) > AutoDriveTolerance) {
+
+            var turnPower = 0.0
+            var denominator = 1.0
+
+            if (abs(ROBOT!!.botHeading - 0) > AutoTurnTolerance) {
+                val heading = radToDeg(ROBOT!!.botHeading)
+
+                val error = 0 - heading
+
+                val derivative = (error - lastError) / timer.seconds()
+
+                integralSum += error * timer.seconds()
+
+                if (integralSum > 0.3) {
+                    integralSum = 0.3
+                } else if (integralSum < -0.3) {
+                    integralSum = -0.3
+                }
+
+                val p = error * DriveConstants.turn_kP
+
+                val i = integralSum * DriveConstants.turn_kI
+
+                val d = derivative * DriveConstants.turn_kD
+
+                turnPower = p + i + d
+
+                denominator = max(turnPower, 1.0)
+            }
+
+            timer.reset()
 
             val power = calcPower(target, ROBOT!!.currentPosition)
 
-            ROBOT!!.RCDrive(power, 0.0, 0.0)
+            ROBOT!!.RCDrive(power, 0.0, turnPower / denominator)
+
             telemetry.addData("Position", ticksToCentimeters(ROBOT!!.currentPosition))
             telemetry.addData("Target", ticksToCentimeters(target))
             telemetry.addData("Distance Remaining", abs(target - ROBOT!!.currentPosition))
@@ -99,6 +139,52 @@ class BlueLeft: LinearOpMode() {
             telemetry.addData("Angle", radToDeg(ROBOT!!.botHeading))
             telemetry.addData("Target", angle)
             telemetry.addData("Angle Remaining", abs(radToDeg(ROBOT!!.botHeading) - target))
+            telemetry.addData("Power", power)
+            telemetry.update()
+        }
+    }
+
+    fun turnTo(angle: Double){
+
+        val lastError = 0.0
+
+        var integralSum = 0.0
+
+        val timer = ElapsedTime()
+
+        // while the IMU is not withing the AutoTurnTolerance of the target angle, calculate the power and turn right
+        while (abs(radToDeg(ROBOT!!.botHeading) - angle) > AutoTurnTolerance) {
+
+            val position = radToDeg(ROBOT!!.botHeading)
+
+            val error = angle - position
+
+            val derivative = (error - lastError) / timer.seconds()
+
+            integralSum += error * timer.seconds()
+
+            if (integralSum > 0.3) {
+                integralSum = 0.3
+            } else if (integralSum < -0.3) {
+                integralSum = -0.3
+            }
+
+            val p = error * DriveConstants.turn_kP
+
+            val i = integralSum * DriveConstants.turn_kI
+
+            val d = derivative * DriveConstants.turn_kD
+
+            val power = p + i + d
+
+            val denominator = max(power, 1.0)
+
+            timer.reset()
+
+            ROBOT!!.RCDrive(0.0, 0.0, power / denominator)
+            telemetry.addData("Angle", radToDeg(ROBOT!!.botHeading))
+            telemetry.addData("Target", angle)
+            telemetry.addData("Angle Remaining", abs(radToDeg(ROBOT!!.botHeading) - angle))
             telemetry.addData("Power", power)
             telemetry.update()
         }
