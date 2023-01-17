@@ -44,6 +44,8 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     var CONE_SENSOR: Rev2mDistanceSensor
 
+    var SLIDES_RESET: DigitalChannel
+
     var IMU: BNO055IMU
 
     private var distanceTarget: Double = 0.0
@@ -87,7 +89,7 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     val botHeading: Double
         get() {
-            val currentAngle: Double = radToDeg(IMU.angularOrientation.firstAngle.toFloat())
+            val currentAngle: Double = radToDeg(IMU.angularOrientation.firstAngle)
 
             var deltaAngle = currentAngle - lastAngle
 
@@ -308,6 +310,8 @@ class RobotConfig(hwMap: HardwareMap?) {
         CLAW = hardwareMap!!.get(Servo::class.java, "CLAW")
 
         SLIDES = Slides(hardwareMap!!.get(DcMotorEx::class.java, "SLIDES"))
+
+        SLIDES_RESET = hardwareMap!!.get(DigitalChannel::class.java, "slidesReset")
 
         CONE_SENSOR = hardwareMap!!.get(Rev2mDistanceSensor::class.java, "CONE_SENSOR")
 

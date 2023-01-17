@@ -56,6 +56,10 @@ enum class AutoMode {
     TURN, STRAIGHT, UNKNOWN
 }
 
+enum class LiftControlType {
+    MANUAL, PID
+}
+
 enum class MotorConstants(val TICKS_PER_REV: Double, val WHEEL_DIAMETER: Double, val TICKS_PER_INCH: Double) {
     GoBilda312(537.7, 96.0 / 25.4, 537.7 / ((96.0 / 25.4) * Math.PI))
 }

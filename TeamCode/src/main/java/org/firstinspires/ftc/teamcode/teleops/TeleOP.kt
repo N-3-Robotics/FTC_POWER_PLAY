@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleops
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.outoftheboxrobotics.photoncore.PhotonCore
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
@@ -15,84 +16,125 @@ import org.firstinspires.ftc.teamcode.utilities.DriveConstants.HoldingPower
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesMax
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesMin
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesSpeed
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.highPole
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.lowPole
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.midPole
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.slightRaise
+import kotlin.math.abs
 
 @TeleOp(name = "TeleOp")
 class TeleOP: LinearOpMode() {
-    var ROBOT: RobotConfig? = null
-
-    fun closeClaw(claw: Servo = ROBOT!!.CLAW) {
-        claw.position = ClawClose
-    }
-    fun openClaw(claw: Servo = ROBOT!!.CLAW) {
-        claw.position = ClawOpen
-    }
-
     override fun runOpMode() {
-        telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
-        ROBOT = RobotConfig(hardwareMap)
-
-        // Rumble the left controller medium once, and the right controller medium twice, at the same time, using the ROBOT!!.rumble function
-        ROBOT!!.rumble(gamepad1, Side.BOTH, RumbleStrength.MEDIUM, 100)
-        ROBOT!!.rumble(gamepad2, Side.BOTH, RumbleStrength.MEDIUM, 100)
-        ROBOT!!.rumble(gamepad2, Side.BOTH, RumbleStrength.MEDIUM, 100)
-
-        waitForStart()
-        openClaw()
+        PhotonCore.enable()
 
         val timer = ElapsedTime()
 
-        while (opModeIsActive()) {
+
+        telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
+
+        val ROBOT = RobotConfig(hardwareMap)
+
+        var lastLiftState = false
+
+        var m = 1.0
+
+        while (!opModeIsActive()){
+            ROBOT.rumble(gamepad1, Side.BOTH, RumbleStrength.HIGH)
+            ROBOT.rumble(gamepad2, Side.BOTH, RumbleStrength.HIGH)
+        }
+
+        var liftState = LiftControlType.MANUAL
+
+        var slideHeight = 0
+
+        var coneGrabbed = false
+
+        waitForStart()
+
+        while (opModeIsActive()){
+            telemetry.addData("Loop Time", timer.milliseconds())
             timer.reset()
 
-            ROBOT!!.gamepadDrive(gamepad1, 1.0)
 
-            // setup the claw motor to open and close
+            // Slides Control
+
+            val slidesResetState = ROBOT.SLIDES_RESET.state
+            val slidesPos = ROBOT.SLIDES.currentPosition
+
+            if (slidesPos < 750){
+                coneGrabbed = if (ROBOT.coneDetected){
+                    ROBOT.closeClaw()
+                    true
+                } else {
+                    false
+                }
+            }
+
+            when (liftState) {
+                LiftControlType.MANUAL -> {
+                    if (gamepad2.circle || gamepad2.square || gamepad2.cross || gamepad2.triangle || coneGrabbed) {
+                        ROBOT.rumble(gamepad2, Side.RIGHT, RumbleStrength.LOW)
+                        liftState = LiftControlType.PID
+                    }
+                    else if (!lastLiftState) {
+                        ROBOT.SLIDES.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                    }
+                    else if (abs(slidesPos) > 5359){
+                        ROBOT.SLIDES.stop()
+                    }
+                    else {
+                        ROBOT.SLIDES.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                        ROBOT.SLIDES.power = gamepad2.right_stick_y * SlidesSpeed
+                    }
+                }
+                LiftControlType.PID -> {
+                    if (gamepad2.cross){
+                        ROBOT.SLIDES.goTo(0)
+                    }
+                    else if (gamepad2.triangle){
+                        ROBOT.SLIDES.goTo(highPole)
+                    }
+                    else if (gamepad2.square){
+                        ROBOT.SLIDES.goTo(midPole)
+                    }
+                    else if (gamepad2.circle){
+                        ROBOT.SLIDES.goTo(lowPole)
+                    }
+                    else if (coneGrabbed){
+                        ROBOT.SLIDES.goTo(slightRaise)
+                    }
+                    else if (gamepad2.ps || abs(gamepad2.right_stick_y) > 0.15){
+                        liftState = LiftControlType.MANUAL
+                    }
+                }
+            }
+
+            lastLiftState = slidesResetState
+
+            // Claw control
+
             when {
                 gamepad2.left_bumper -> {
-                    openClaw()
+                    ROBOT.openClaw()
+                    coneGrabbed = false
                 }
                 gamepad2.right_bumper -> {
-                    closeClaw()
+                    ROBOT.closeClaw()
+                    coneGrabbed = false
                 }
             }
 
-            if (gamepad2.right_stick_y.toDouble() == 0.0) {
-                ROBOT!!.SLIDES.power = HoldingPower
-            }
-            else {
-                 if (!ROBOT!!.SLIDES.isBusy){
-                     ROBOT!!.SLIDES.mode = DcMotor.RunMode.RUN_USING_ENCODER
-                     if (ROBOT!!.SLIDES.currentPosition > SlidesMax) {
-                         ROBOT!!.SLIDES.power = -0.1
-                     }
-                     else if (ROBOT!!.SLIDES.currentPosition < SlidesMin){
-                         ROBOT!!.SLIDES.power = 0.1
-                     }
-                     else {
+            // Drivetrain Control
+            ROBOT.gamepadDrive(gamepad1, m)
 
-                         ROBOT!!.SLIDES.power = -gamepad2.right_stick_y.toDouble() * SlidesSpeed
-                     }
-                 }
-            }
-
-            if (ROBOT!!.coneDetected && ROBOT!!.SLIDES.currentPosition < 500) {
-                telemetry.addData("Cone Sensor", "Cone Detected")
-                closeClaw()
-                ROBOT!!.SLIDES.targetPosition += 200
-                ROBOT!!.SLIDES.mode = DcMotor.RunMode.RUN_TO_POSITION
-                ROBOT!!.SLIDES.power = 1.0
-            } else {
-                telemetry.addData("Cone Sensor", "No Cone Detected")
-            }
-
-            //add the loop time of the program to the telemetry
-            telemetry.addData("Loop Time", timer.milliseconds())
-
-            telemetry.addData("Slides Position", ROBOT!!.SLIDES.currentPosition)
+            telemetry.addData("Slides Pos", slidesPos)
+            telemetry.addData("Slides Reset State", slidesResetState)
+            telemetry.addData("Lift State", liftState)
 
             telemetry.update()
         }
+
         
     }
 

@@ -1,3 +1,4 @@
+@file:Suppress("unused")
 package org.firstinspires.ftc.teamcode.robot
 
 import com.acmerobotics.robomatic.util.PIDController
@@ -7,13 +8,12 @@ import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesTolerance
 import kotlin.math.abs
 
 class Slides(private val motor: DcMotorEx) {
-
     var state = State.STOPPED
 
-    var correction: Double = 0.0
-    var error: Double = 0.0
+    private var correction: Double = 0.0
+    private var error: Double = 0.0
 
-    var slidesPIDController = PIDController(0.5, 0.0, 0.0)
+    private var slidesPIDController = PIDController(0.5, 0.0, 0.0)
 
     enum class State{
         MOVING, STOPPED
@@ -41,7 +41,7 @@ class Slides(private val motor: DcMotorEx) {
         get() = motor.currentPosition.toDouble()
 
     val currentVelocity: Double
-        get() = motor.velocity.toDouble()
+        get() = motor.velocity
 
     var targetPosition = 0
 
@@ -76,6 +76,8 @@ class Slides(private val motor: DcMotorEx) {
 
     init {
         slidesPIDController.setOutputBounds(-1.0, 1.0)
+        mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        mode = DcMotor.RunMode.RUN_USING_ENCODER
     }
 
 
