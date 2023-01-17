@@ -18,12 +18,48 @@ object MeepMeepTesting {
                     60.0,
                     Math.toRadians(180.0),
                     Math.toRadians(180.0),
-                    15.0) // Option: Set theme. Default = ColorSchemeRedDark()
+                    12.0) // Option: Set theme. Default = ColorSchemeRedDark()
                 .setColorScheme(ColorSchemeRedDark()).followTrajectorySequence { drive ->
-                    drive.trajectorySequenceBuilder(Pose2d(0.0, 0.0, 0.0)).forward(30.0)
-                        .turn(Math.toRadians(90.0)).forward(30.0).addDisplacementMarker {}
-                        .turn(Math.toRadians(90.0)).splineTo(Vector2d(10.0, 15.0), 0.0)
-                        .turn(Math.toRadians(90.0)).build()
+                    drive.trajectorySequenceBuilder(Pose2d(-36.0, -66.0, Math.toRadians(90.0))) //-35, -65, 90
+                        .splineTo(Vector2d(-26.5, -26.5), Math.toRadians(45.0))
+                        .lineToLinearHeading(Pose2d(-46.0, -12.0, Math.toRadians(180.0)))
+                        .lineTo(Vector2d(-65.0, -12.0))
+                        .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+                        .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+                        .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+                        .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+                        .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+                        .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+                        .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+                        .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+                        .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+                        .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+                        //.lineToLinearHeading(Pose2d(-36.00, -36.00, Math.toRadians(0.0))) // at tile (1, 0)
+                       // .addSpatialMarker(Vector2d(-36.00, -36.00)) {
+                     /*       drive.SLIDES.targetPosition = midPole
+                            drive.SLIDES.mode = DcMotor.RunMode.RUN_TO_POSITION
+                            drive.SLIDES.power = 1.0
+                            while (drive.SLIDES.isBusy) {
+                                telemetry.addData("slides", drive.SLIDES.currentPosition)
+                                telemetry.update()
+                            }
+                            drive.SLIDES.power = 0.0
+                            drive.SLIDES.mode = DcMotor.RunMode.RUN_USING_ENCODER*/
+                        //}
+                        //.lineToLinearHeading(Pose2d(-26.50, -26.50, Math.toRadians(45.00))) // at junction (1, 1)
+                        /*.addSpatialMarker(Vector2d(-26.50, -26.50)) {
+                         *//*   openClaw()
+                            sleep(500)
+                            closeClaw()*//*
+                        }
+                        .lineToLinearHeading(Pose2d(-36.00, -36.00, Math.toRadians(90.00))) // at tile (1, 1)
+                        .lineToLinearHeading(Pose2d(-36.00, -12.00, Math.toRadians(90.00)))// at tile (1, 2)
+                        .lineToLinearHeading(Pose2d(-65.00, -12.00, Math.toRadians(180.00)))// // at cone stack
+                        .lineToLinearHeading(Pose2d(-36.00, -12.00, Math.toRadians(90.00))) // at tile (1, 2)
+                        .lineToLinearHeading(Pose2d(-27.00, -3.50, Math.toRadians(45.00)))// at junction (1, 2)
+                        .lineToLinearHeading(Pose2d(-36.00, -36.00, Math.toRadians(90.00))) // at tile (1, 1)
+                        .lineToLinearHeading(Pose2d(-60.00, -36.00, Math.toRadians(180.00))) // at tile (0, 1), parked*/
+                        .build()
                 }
 
         // Set field image

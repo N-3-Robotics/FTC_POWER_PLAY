@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.autos
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.geometry.Vector2d
 import com.outoftheboxrobotics.photoncore.PhotonCore
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.Disabled
@@ -85,40 +86,19 @@ class ihatejava : LinearOpMode() {
         })
         dashboard.startCameraStream(camera, 30.0)
         val zone1 = drive.trajectorySequenceBuilder(Pose2d(0.0, 0.0))
-            .forward(30.0)
-            .strafeLeft(13.0)
-            .addTemporalMarker(1.0){
-                drive.slides.targetPosition=3500
-                drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
-                drive.slides.power= slidePower
-            }
-            .forward(5.0)
-            .addTemporalMarker(5.0){
-                openClaw()
-            }
-            .back(5.0)
-            .addTemporalMarker(7.0){
-                drive.slides.targetPosition=500
-                drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
-                drive.slides.power= slidePower
-            }
-            .turn(Math.toRadians(90.0))
-            .forward(10.0)
-            .strafeRight(26.0)
-            .forward(6.0)
-            .addTemporalMarker(10.0){
-                closeClaw()
-            }
-            .back(8.5)
-            .strafeLeft(10.0)
-            .turn(Math.toRadians(130.0))
-            .forward(8.0)
-            .addTemporalMarker(16.0){
-                openClaw()
-            }
-            .back(8.5)
-            .turn(Math.toRadians(-40.0))
-            .forward(5.0)
+            .splineTo(Vector2d(-26.5, -26.5), Math.toRadians(45.0))
+            .lineToLinearHeading(Pose2d(-46.0, -12.0, Math.toRadians(180.0)))
+            .lineTo(Vector2d(-65.0, -12.0))
+            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+            .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+            .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+            .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+            .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+            .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
             .build()
         val zone2 = drive.trajectorySequenceBuilder(Pose2d(0.0, 0.0))
             .forward(55.0)
