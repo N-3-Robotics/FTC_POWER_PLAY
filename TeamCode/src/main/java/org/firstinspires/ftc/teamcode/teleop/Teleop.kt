@@ -45,6 +45,8 @@ object TeleopVariables {
     var slidesDown=0
     @JvmField
     var slidesAboveGround = 500
+    @JvmField
+    var slidePower = -1.0
 }
 @TeleOp(name="Working Teleop", group="TeleOp")
 class OurTeleOp : LinearOpMode() {
