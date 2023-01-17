@@ -7,11 +7,11 @@ import kotlin.math.roundToInt
 
 class QOL {
     companion object {
-        fun centimetersToTicks(meters: Double): Int {
-            return (meters * MotorConstants.GoBilda312.TICKS_PER_CENTIMETER).roundToInt()
+        fun inchesToTicks(meters: Double): Int {
+            return (meters * MotorConstants.GoBilda312.TICKS_PER_INCH).roundToInt()
         }
-        fun ticksToCentimeters(ticks: Int): Double {
-            return ticks / MotorConstants.GoBilda312.TICKS_PER_CENTIMETER
+        fun ticksToInches(ticks: Int): Double {
+            return ticks / MotorConstants.GoBilda312.TICKS_PER_INCH
         }
         fun calcPower(target: Int, current: Int): Double {
             val p = DriveConstants.drive_kP * (target - current)
@@ -38,6 +38,9 @@ class QOL {
         fun rED(current: Boolean, previous: Boolean): Boolean { // Rising Edge Detector
             return current && !previous
         }
+        fun lerp(p0: Double, p1: Double, t: Double) : Double {
+            return p0 * (1.0 - t) + (p1 * t)
+        }
     }
 }
 
@@ -53,8 +56,8 @@ enum class AutoMode {
     TURN, STRAIGHT, UNKNOWN
 }
 
-enum class MotorConstants(val TICKS_PER_REV: Double, val WHEEL_DIAMETER: Double, val TICKS_PER_CENTIMETER: Double) {
-    GoBilda312(537.7, 96.0 / 10, 537.7 / ((96.0 / 10) * Math.PI))
+enum class MotorConstants(val TICKS_PER_REV: Double, val WHEEL_DIAMETER: Double, val TICKS_PER_INCH: Double) {
+    GoBilda312(537.7, 96.0 / 25.4, 537.7 / ((96.0 / 25.4) * Math.PI))
 }
 @Config()
 object DriveConstants{
@@ -65,10 +68,25 @@ object DriveConstants{
     var drive_kP = 0.04
 
     @JvmField
-    var turn_kP = 0.04
+    var drive_kI = 0.00
 
     @JvmField
-    var turn_kI = 0.0
+    var drive_kD = 0.00
+
+    @JvmField
+    var heading_kP = 0.02
+
+    @JvmField
+    var heading_kI = 0.00
+
+    @JvmField
+    var heading_kD = 0.00
+
+    @JvmField
+    var turn_kP = 0.02
+
+    @JvmField
+    var turn_kI = 0.01
 
     @JvmField
     var turn_kD = 0.0
@@ -80,7 +98,10 @@ object DriveConstants{
     var AutoDriveTolerance = 50 // tick
 
     @JvmField
-    var AutoTurnTolerance = 1 // degree
+    var AutoTurnTolerance = 0.25 // degree
+
+    @JvmField
+    var SlidesTolerance = 50 // tick
 
     @JvmField
     var ClawOpen = 0.52
@@ -88,14 +109,19 @@ object DriveConstants{
     @JvmField
     var ClawClose = 0.6
 
-    @JvmField
     var SlidesSpeed = 1.0
 
-    @JvmField
     var SlidesMax = 5359
 
-    @JvmField
     var SlidesMin = 0
+
+    var highPole = SlidesMax
+
+    var midPole = SlidesMax / 3 * 2
+
+    var lowPole = SlidesMax / 3
+
+    var slightRaise = 300
 
     @JvmField
     var HoldingPower = 0.0001

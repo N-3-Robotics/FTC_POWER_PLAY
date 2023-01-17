@@ -1,12 +1,29 @@
 @file:Suppress("unused", "NAME_SHADOWING")
-package org.firstinspires.ftc.teamcode.utilities
+package org.firstinspires.ftc.teamcode.robot
 
+import com.acmerobotics.robomatic.util.PIDController
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
-import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesMin
+import org.firstinspires.ftc.teamcode.utilities.AutoMode.*
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.AutoDriveTolerance
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.AutoTurnTolerance
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.drive_kP
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.drive_kI
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.drive_kD
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.heading_kD
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.heading_kI
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.heading_kP
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.strafeMultiplier
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.turn_kD
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.turn_kI
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.turn_kP
+import org.firstinspires.ftc.teamcode.utilities.QOL.Companion.radToDeg
+import org.firstinspires.ftc.teamcode.utilities.QOL.Companion.ticksToInches
+import org.firstinspires.ftc.teamcode.utilities.RumbleStrength
+import org.firstinspires.ftc.teamcode.utilities.Side
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.max
@@ -19,7 +36,9 @@ class RobotConfig(hwMap: HardwareMap?) {
     var BL: DcMotorEx
     var BR: DcMotorEx
 
-    var SLIDES: DcMotorEx
+    var driveMotors: Array<DcMotorEx>
+
+    var SLIDES: Slides
 
     var CLAW: Servo
 
@@ -27,14 +46,62 @@ class RobotConfig(hwMap: HardwareMap?) {
 
     var IMU: BNO055IMU
 
+    private var distanceTarget: Double = 0.0
+    private var distanceError: Double = 0.0
+
+    private var angleTarget: Double = 0.0
+    private var errorAngle: Double = 0.0
+
+    private var headingError: Double = 0.0
+    private var headingTarget: Double = 0.0
+
+    private var correction: Double = 0.0
+
+    private var headingCorrection: Double = 0.0
+
+    private var lastAngle: Double = botHeading
+
+    private var globalAngle: Double = botHeading
+
+    private var hasBeenRun = true
+
+    var autoMode = UNKNOWN
+
     val currentPosition: Int
         get() {
             return (FL.currentPosition + FR.currentPosition + BL.currentPosition + BR.currentPosition) / 4
         }
 
-    val botHeading: Float
+    val isBusy: Boolean
         get() {
-            return IMU.angularOrientation.firstAngle
+            for (motor in driveMotors) {
+                if (motor.isBusy) {
+                    return true
+                }
+            }
+            if (SLIDES.state == Slides.State.MOVING) {
+                return true
+            }
+            return false
+        }
+
+    val botHeading: Double
+        get() {
+            val currentAngle: Double = radToDeg(IMU.angularOrientation.firstAngle.toFloat())
+
+            var deltaAngle = currentAngle - lastAngle
+
+            if (deltaAngle < -180) {
+                deltaAngle += 360
+            } else if (deltaAngle > 180) {
+                deltaAngle -= 360
+            }
+
+            globalAngle += deltaAngle
+
+            lastAngle = currentAngle
+
+            return globalAngle
         }
 
     var zeroPowerBehavior: DcMotor.ZeroPowerBehavior
@@ -63,7 +130,12 @@ class RobotConfig(hwMap: HardwareMap?) {
         }
 
 
+
     private var hardwareMap: HardwareMap? = null
+
+    var headingPIDController = PIDController(heading_kP, heading_kI, heading_kD)
+    var turnPIDController = PIDController(turn_kP, turn_kI, turn_kD)
+    var drivePIDController = PIDController(drive_kP, drive_kI, drive_kD)
 
     fun funnyDrive(drive: Double, turn: Double){
         FL.power = drive + turn
@@ -111,12 +183,100 @@ class RobotConfig(hwMap: HardwareMap?) {
         )
     }
 
-    fun stop() {
-        RCDrive(0.0, 0.0, 0.0)
+    fun update() {
+        when (autoMode) {
+            UNKNOWN -> {
+                stop()
+            }
+            TURN -> {
+                while (abs(errorAngle) > AutoTurnTolerance) {
+                    errorAngle = angleTarget - botHeading
+
+                    correction = turnPIDController.update(errorAngle)
+
+                    funnyDrive(0.0, correction)
+                }
+                stop()
+            }
+            STRAIGHT -> {
+                while (abs(distanceError) > AutoDriveTolerance) {
+                    headingError = headingTarget - botHeading
+
+                    headingCorrection = headingPIDController.update(headingError)
+
+                    distanceError = distanceTarget - ticksToInches(currentPosition)
+
+                    correction = drivePIDController.update(distanceError)
+
+                    funnyDrive(correction, headingCorrection)
+                }
+                stop()
+            }
+        }
     }
 
-    fun lerp(p0: Double, p1: Double, t: Double) : Double {
-        return p0 * (1.0 - t) + (p1 * t)
+    fun resetHeading(){
+        globalAngle = 0.0
+    }
+
+    fun stop() {
+        RCDrive(0.0, 0.0, 0.0)
+        autoMode = UNKNOWN
+    }
+
+    fun prepareMotors(){
+        for (motor in driveMotors){
+            motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            motor.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        }
+    }
+    fun straight(inches: Double){
+        hasBeenRun = false
+        prepareMotors()
+
+        distanceTarget = inches
+
+        distanceError = distanceTarget
+
+        autoMode = STRAIGHT
+
+        headingTarget = botHeading
+
+        update()
+    }
+
+    fun turnRight(angle: Int = -90){
+        turnPIDController.reset()
+
+        autoMode = TURN
+
+        resetHeading()
+
+        angleTarget = -angle.toDouble()
+
+        prepareMotors()
+
+        update()
+    }
+
+    fun turnLeft(angle: Int = 90){
+        turnPIDController.reset()
+
+        autoMode = TURN
+
+        resetHeading()
+
+        angleTarget = angle.toDouble()
+
+        prepareMotors()
+
+        update()
+    }
+    fun closeClaw(claw: Servo = CLAW) {
+        claw.position = DriveConstants.ClawClose
+    }
+    fun openClaw(claw: Servo = CLAW) {
+        claw.position = DriveConstants.ClawOpen
     }
 
     fun rumble(controller: Gamepad, side: Side, power: RumbleStrength, duration: Int = 100) {
@@ -143,11 +303,17 @@ class RobotConfig(hwMap: HardwareMap?) {
         BL = hardwareMap!!.get(DcMotorEx::class.java, "BL")
         BR = hardwareMap!!.get(DcMotorEx::class.java, "BR")
 
+        driveMotors = arrayOf(FL, FR, BL, BR)
+
         CLAW = hardwareMap!!.get(Servo::class.java, "CLAW")
 
-        SLIDES = hardwareMap!!.get(DcMotorEx::class.java, "SLIDES")
+        SLIDES = Slides(hardwareMap!!.get(DcMotorEx::class.java, "SLIDES"))
 
         CONE_SENSOR = hardwareMap!!.get(Rev2mDistanceSensor::class.java, "CONE_SENSOR")
+
+        headingPIDController.setOutputBounds(-0.1, 0.1)
+        turnPIDController.setOutputBounds(-1.0, 1.0)
+        drivePIDController.setOutputBounds(-1.0, 1.0)
 
 
         FL.direction = DcMotorSimple.Direction.REVERSE

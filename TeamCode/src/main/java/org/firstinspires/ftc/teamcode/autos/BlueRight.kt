@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants
 import org.firstinspires.ftc.teamcode.utilities.QOL
-import org.firstinspires.ftc.teamcode.utilities.RobotConfig
+import org.firstinspires.ftc.teamcode.robot.RobotConfig
 import org.openftc.easyopencv.OpenCvCamera
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation

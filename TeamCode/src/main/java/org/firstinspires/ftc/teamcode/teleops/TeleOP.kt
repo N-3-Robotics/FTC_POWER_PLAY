@@ -4,13 +4,10 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.exception.RobotCoreException
-import com.qualcomm.robotcore.hardware.CRServo
 import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.Gamepad
 import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.robot.RobotConfig
 import org.firstinspires.ftc.teamcode.utilities.*
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawClose
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawOpen
@@ -18,7 +15,6 @@ import org.firstinspires.ftc.teamcode.utilities.DriveConstants.HoldingPower
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesMax
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesMin
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesSpeed
-import java.lang.Math.abs
 
 @TeleOp(name = "TeleOp")
 class TeleOP: LinearOpMode() {
