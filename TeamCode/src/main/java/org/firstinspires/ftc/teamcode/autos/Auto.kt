@@ -6,10 +6,9 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.hardware.DcMotor
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagPipeline
-import org.firstinspires.ftc.teamcode.robot.RobotConfig
+import org.firstinspires.ftc.teamcode.robot.Robot
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.highPole
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.midPole
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.slightRaise
@@ -46,7 +45,7 @@ class Auto: LinearOpMode() {
 
 
     override fun runOpMode() {
-        val ROBOT = RobotConfig(hardwareMap)
+        val ROBOT = Robot(hardwareMap)
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
         val cameraMonitorViewId =
             hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId",

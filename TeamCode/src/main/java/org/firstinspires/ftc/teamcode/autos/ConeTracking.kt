@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.pipelines.*
-import org.firstinspires.ftc.teamcode.robot.RobotConfig
+import org.firstinspires.ftc.teamcode.robot.Robot
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc.*
 import org.openftc.easyopencv.OpenCvCamera.AsyncCameraOpenListener
@@ -21,7 +21,7 @@ import org.openftc.easyopencv.OpenCvWebcam
 class RedConeTracking: LinearOpMode(){
 
     var webcam: OpenCvWebcam? = null
-    var RC: RobotConfig? = null
+    var RC: Robot? = null
 
     @SuppressLint("DiscouragedApi")
     override fun runOpMode() {
@@ -61,7 +61,7 @@ class RedConeTracking: LinearOpMode(){
 class BlueConeTracking: LinearOpMode(){
 
     var webcam: OpenCvWebcam? = null
-    var RC: RobotConfig? = null
+    var RC: Robot? = null
 
     @SuppressLint("DiscouragedApi")
     override fun runOpMode() {

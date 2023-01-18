@@ -24,13 +24,11 @@ import org.firstinspires.ftc.teamcode.utilities.QOL.Companion.radToDeg
 import org.firstinspires.ftc.teamcode.utilities.QOL.Companion.ticksToInches
 import org.firstinspires.ftc.teamcode.utilities.RumbleStrength
 import org.firstinspires.ftc.teamcode.utilities.Side
+import org.firstinspires.ftc.teamcode.utilities.geometry.Vector2d
 import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.sin
 
 
-class RobotConfig(hwMap: HardwareMap?) {
+class Robot(hwMap: HardwareMap?) {
     var FL: DcMotorEx
     var FR: DcMotorEx
     var BL: DcMotorEx
@@ -139,7 +137,7 @@ class RobotConfig(hwMap: HardwareMap?) {
     var turnPIDController = PIDController(turn_kP, turn_kI, turn_kD)
     var drivePIDController = PIDController(drive_kP, drive_kI, drive_kD)
 
-    fun funnyDrive(drive: Double, turn: Double){
+    private fun tDrive(drive: Double, turn: Double){
         FL.power = drive + turn
         FR.power = drive - turn
         BL.power = drive + turn
@@ -165,20 +163,17 @@ class RobotConfig(hwMap: HardwareMap?) {
     }
 
     fun FCDrive(y: Double, x: Double, turn: Double) {
-        val x = x * strafeMultiplier
+        /*val x = x * strafeMultiplier
         val rotX = x * cos(-botHeading) - y * sin(-botHeading)
-        val rotY = y * sin(-botHeading) + x * cos(-botHeading)
+        val rotY = y * sin(-botHeading) + x * cos(-botHeading)*/
 
-        val denominator = max(abs(y) + abs(x) + abs(turn), 1.0)
+        val input = Vector2d(y, -x).rotated(-botHeading)
 
-        FL.power = (rotY + rotX + turn) / denominator
-        BL.power = (rotY - rotX + turn) / denominator
-        FR.power = (rotY - rotX - turn) / denominator
-        BR.power = (rotY + rotX - turn) / denominator
+        RCDrive(input.y, input.x, turn)
     }
 
     fun gamepadDrive(controller: Gamepad, multiplier: Double) {
-        RCDrive(
+        FCDrive(
             -controller.left_stick_y.toDouble() * multiplier,
             controller.left_stick_x.toDouble() * multiplier,
             controller.right_stick_x.toDouble() * multiplier
@@ -196,7 +191,7 @@ class RobotConfig(hwMap: HardwareMap?) {
 
                     correction = turnPIDController.update(errorAngle)
 
-                    funnyDrive(0.0, correction)
+                    tDrive(0.0, correction)
                 }
                 stop()
             }
@@ -210,14 +205,14 @@ class RobotConfig(hwMap: HardwareMap?) {
 
                     correction = drivePIDController.update(distanceError)
 
-                    funnyDrive(correction, headingCorrection)
+                    tDrive(correction, headingCorrection)
                 }
                 stop()
             }
         }
     }
 
-    fun resetHeading(){
+    private fun resetHeading(){
         globalAngle = 0.0
     }
 
@@ -226,7 +221,7 @@ class RobotConfig(hwMap: HardwareMap?) {
         autoMode = UNKNOWN
     }
 
-    fun prepareMotors(){
+    private fun prepareMotors(){
         for (motor in driveMotors){
             motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             motor.mode = DcMotor.RunMode.RUN_USING_ENCODER

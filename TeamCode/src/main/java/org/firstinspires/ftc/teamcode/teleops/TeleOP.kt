@@ -6,15 +6,9 @@ import com.outoftheboxrobotics.photoncore.PhotonCore
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.robot.RobotConfig
+import org.firstinspires.ftc.teamcode.robot.Robot
 import org.firstinspires.ftc.teamcode.utilities.*
-import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawClose
-import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawOpen
-import org.firstinspires.ftc.teamcode.utilities.DriveConstants.HoldingPower
-import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesMax
-import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesMin
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.SlidesSpeed
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.highPole
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.lowPole
@@ -33,7 +27,7 @@ class TeleOP: LinearOpMode() {
 
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
-        val ROBOT = RobotConfig(hardwareMap)
+        val ROBOT = Robot(hardwareMap)
 
         var lastLiftState = false
 
@@ -124,6 +118,22 @@ class TeleOP: LinearOpMode() {
                     coneGrabbed = false
                 }
             }
+
+            when {
+                gamepad1.cross -> {
+                    m = 0.25
+                }
+                gamepad1.circle -> {
+                    m = 0.5
+                }
+                gamepad1.square -> {
+                    m = 0.75
+                }
+                gamepad1.triangle -> {
+                    m = 1.0
+                }
+            }
+
 
             // Drivetrain Control
             ROBOT.gamepadDrive(gamepad1, m)

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants
 import org.firstinspires.ftc.teamcode.utilities.QOL
-import org.firstinspires.ftc.teamcode.robot.RobotConfig
+import org.firstinspires.ftc.teamcode.robot.Robot
 import org.openftc.easyopencv.OpenCvCamera
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
@@ -21,7 +21,7 @@ import kotlin.math.abs
 @Disabled
 @Autonomous(name = "Blue Right")
 class BlueRight: LinearOpMode() {
-    var ROBOT: RobotConfig? = null
+    var ROBOT: Robot? = null
 
     fun forward(centimeters: Double){
         val target = ROBOT!!.currentPosition + QOL.centimetersToTicks(centimeters)
