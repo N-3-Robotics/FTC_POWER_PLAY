@@ -1,6 +1,6 @@
 dependencies {
-    implementation 'org.firstinspires.ftc:RobotCore:8.1.1'
-    implementation 'org.firstinspires.ftc:Hardware:8.1.1'
-    implementation 'org.firstinspires.ftc:FtcCommon:8.1.1'
-    implementation 'com.acmerobotics.dashboard:dashboard:0.4.6'
+    implementation 'org.firstinspires.ftc:RobotCore:7.0.0'
+    implementation 'org.firstinspires.ftc:Hardware:7.0.0'
+    implementation 'org.firstinspires.ftc:FtcCommon:7.0.0'
+    implementation 'com.acmerobotics.dashboard:dashboard:0.4.3'
 }
