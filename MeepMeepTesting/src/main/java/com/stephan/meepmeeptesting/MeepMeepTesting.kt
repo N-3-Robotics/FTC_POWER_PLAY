@@ -21,19 +21,22 @@ object MeepMeepTesting {
                     12.0) // Option: Set theme. Default = ColorSchemeRedDark()
                 .setColorScheme(ColorSchemeRedDark()).followTrajectorySequence { drive ->
                     drive.trajectorySequenceBuilder(Pose2d(-36.0, -66.0, Math.toRadians(90.0))) //-35, -65, 90
-                        .splineTo(Vector2d(-26.5, -26.5), Math.toRadians(45.0))
+                        .splineTo(Vector2d(-29.0, -28.0), Math.toRadians(45.0))
+                        .back(7.0)
                         .lineToLinearHeading(Pose2d(-46.0, -12.0, Math.toRadians(180.0)))
                         .lineTo(Vector2d(-65.0, -12.0))
+                        .lineTo(Vector2d(-55.0, -12.0))
+                        .lineToLinearHeading(Pose2d(-54.0, -21.0, Math.toRadians(-45.0)))
+/*                        .lineTo(Vector2d(-50.0, -42.0))
+                        .lineToLinearHeading(Pose2d(-64.0, -12.0, Math.toRadians(180.0)))
                         .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
-                        .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+                        .lineToLinearHeading(Pose2d(-64.0, -12.0, Math.toRadians(180.0)))
                         .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
-                        .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+                        .lineToLinearHeading(Pose2d(-64.0, -12.0, Math.toRadians(180.0)))
                         .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
-                        .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+                        .lineToLinearHeading(Pose2d(-64.0, -12.0, Math.toRadians(180.0)))
                         .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
-                        .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
-                        .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
-                        .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+                        .lineToLinearHeading(Pose2d(-64.0, -12.0, Math.toRadians(180.0)))*/
                         //.lineToLinearHeading(Pose2d(-36.00, -36.00, Math.toRadians(0.0))) // at tile (1, 0)
                        // .addSpatialMarker(Vector2d(-36.00, -36.00)) {
                      /*       drive.SLIDES.targetPosition = midPole

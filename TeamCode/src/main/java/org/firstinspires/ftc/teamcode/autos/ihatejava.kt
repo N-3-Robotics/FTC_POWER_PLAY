@@ -11,16 +11,22 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.Servo
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
 import org.firstinspires.ftc.teamcode.pipelines.AprilTagPipeline
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables
+import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.cone4
+import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.cone5
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidePower
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidesAboveGround
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidesHigh
+import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidesLow
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidesMid
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawClose
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawOpen
 import org.openftc.easyopencv.OpenCvCamera
 import org.openftc.easyopencv.OpenCvCameraFactory
 import org.openftc.easyopencv.OpenCvCameraRotation
@@ -68,6 +74,9 @@ class ihatejava : LinearOpMode() {
         closeClaw()
         drive.slides.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         closeClaw()
+        drive.updatePoseEstimate()
+        telemetry.addData("angle", drive.poseEstimate.heading)
+        telemetry.update()
         /*** set up camera ***/
         val cameraMonitorViewId =
             hardwareMap.appContext.resources.getIdentifier("cameraMonitorViewId",
@@ -85,22 +94,68 @@ class ihatejava : LinearOpMode() {
             override fun onError(errorCode: Int) {}
         })
         dashboard.startCameraStream(camera, 30.0)
-        val zone1 = drive.trajectorySequenceBuilder(Pose2d(0.0, 0.0))
-            .splineTo(Vector2d(-26.5, -26.5), Math.toRadians(45.0))
+        val zone1 = drive.trajectorySequenceBuilder(Pose2d(-36.0, -66.0, Math.toRadians(90.0)))
+            .splineTo(Vector2d(-29.0, -28.0), Math.toRadians(45.0))
+            .UNSTABLE_addTemporalMarkerOffset(0.0){
+                drive.claw.position=ClawOpen
+            }
+            .back(7.0)
             .lineToLinearHeading(Pose2d(-46.0, -12.0, Math.toRadians(180.0)))
+            .UNSTABLE_addTemporalMarkerOffset(0.0){
+                drive.slides.targetPosition=cone5
+                drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
+                drive.slides.power=slidePower
+            }
             .lineTo(Vector2d(-65.0, -12.0))
-            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
-            .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
-            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
-            .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
-            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
-            .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
-            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
-            .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
-            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
-            .lineToLinearHeading(Pose2d(-65.0, -12.0, Math.toRadians(180.0)))
+            .UNSTABLE_addTemporalMarkerOffset(0.0){
+                drive.claw.position=ClawClose
+            }
+            .UNSTABLE_addTemporalMarkerOffset(0.5){
+                drive.slides.targetPosition= slidesLow
+                drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
+                drive.slides.power=slidePower
+            }
             .build()
-        val zone2 = drive.trajectorySequenceBuilder(Pose2d(0.0, 0.0))
+                val loop1=drive.trajectorySequenceBuilder(zone1.end())
+                    .lineTo(Vector2d(-57.0, -12.0))
+            .lineToLinearHeading(Pose2d(-54.0, -21.0, Math.toRadians(-45.0)))
+                    .UNSTABLE_addDisplacementMarkerOffset(0.0){
+                        drive.claw.position = ClawOpen
+                    }
+                    .UNSTABLE_addTemporalMarkerOffset(0.5){
+                        drive.slides.targetPosition= cone4
+                        drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
+                        drive.slides.power=slidePower
+                    }
+            .lineToLinearHeading(Pose2d(-57.0, -12.0, Math.toRadians(180.0)))
+                    .build()
+                val loop2 = drive.trajectorySequenceBuilder(loop1.end())
+                    .lineTo(Vector2d(-65.0, -19.0))
+                    .UNSTABLE_addDisplacementMarkerOffset(0.0){
+                        drive.claw.position = ClawClose
+                    }
+                    .UNSTABLE_addTemporalMarkerOffset(0.2){
+                        drive.slides.targetPosition= slidesLow
+                        drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
+                        drive.slides.power=slidePower
+                    }
+                    .waitSeconds(.25)
+                    .lineTo(Vector2d(-57.0, -12.0))
+                    .lineToLinearHeading(Pose2d(-56.0, -25.0, Math.toRadians(-45.0)))
+                    .UNSTABLE_addDisplacementMarkerOffset(0.0){
+                        drive.claw.position = ClawOpen
+                    }
+                    .build()
+/*
+            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+            .lineToLinearHeading(Pose2d(-64.0, -12.0, Math.toRadians(180.0)))
+            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+            .lineToLinearHeading(Pose2d(-64.0, -12.0, Math.toRadians(180.0)))
+            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+            .lineToLinearHeading(Pose2d(-64.0, -12.0, Math.toRadians(180.0)))
+            .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))
+            .lineToLinearHeading(Pose2d(-64.0, -12.0, Math.toRadians(180.0))) */
+        val zone2 = drive.trajectorySequenceBuilder(Pose2d(-36.0, -66.0, Math.toRadians(90.0)))
             .forward(55.0)
             .addTemporalMarker(1.0) {
                 drive.slides.targetPosition=slidesHigh
@@ -183,21 +238,31 @@ class ihatejava : LinearOpMode() {
             telemetry.update()
         }
         /*** wait for start ***/
+        drive.poseEstimate = zone1.start()
         waitForStart()
-        drive.slides.targetPosition= 500
+        drive.slides.targetPosition= slidesMid
         drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
         drive.slides.power=slidePower
+        sleep(250)
         /*** run paths ***/
         when(parkingId) {
-            21 -> drive.followTrajectorySequenceAsync(zone1)
+            21 -> drive.followTrajectorySequence(zone1)
             22 -> drive.followTrajectorySequence(zone2)
             23 -> drive.followTrajectorySequence(zone3)
         }
         while(drive.isBusy && !isStopRequested){
-            drive.update()
-            telemetry.addData("slides", drive.slides.power)
-            telemetry.update()
-
+        }
+            while(drive.slides.currentPosition<drive.slides.targetPosition){
+                //do nothing
+            }
+        drive.followTrajectorySequence(loop1)
+        while(drive.isBusy && !isStopRequested){
+        }
+        while(drive.slides.currentPosition<drive.slides.targetPosition){
+            //do nothing
+        }
+        drive.followTrajectorySequence(loop2)
+        while(drive.isBusy && !isStopRequested){
         }
     }
 }

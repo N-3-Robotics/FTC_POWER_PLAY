@@ -34,15 +34,25 @@ object TeleopVariables {
     @JvmField
     var clawOpenPos=0.52
     @JvmField
-    var clawClosePos=0.6
+    var clawClosePos=0.58
     @JvmField
-    var slidesLow=2000
+    var slidesLow=2250
     @JvmField
-    var slidesMid=3500
+    var slidesMid=3750
     @JvmField
     var slidesHigh=5000
     @JvmField
     var slidesDown=0
+    @JvmField
+    var cone5 = 700 //1400 remove
+    @JvmField
+    var cone4 = 500 //1200 remove
+    @JvmField
+    var cone3 = 300 //1000 remove
+    @JvmField
+    var cone2 = 100 //800 remove
+    @JvmField
+    var cone1 = 0 //300 remove
     @JvmField
     var slidesAboveGround = 500
     @JvmField
@@ -121,7 +131,7 @@ class OurTeleOp : LinearOpMode() {
             when(liftState) {
                 LiftState.MANUAL -> if (gamepad2.circle || gamepad2.square || gamepad2.triangle || gamepad2.cross || coneGrabbed) {
                     liftState = LiftState.AUTO
-                } else if (!lastliftState) { //check if reset switch is triggered (need to check if it was not triggered last time)
+                } else if (!lastliftState && slideResetState) { //check if reset switch is triggered (need to check if it was not triggered last time)
                     robotConfig!!.slides.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
                 } else if (abs(slidesEncoderPos) > 5300 ) {
                     robotConfig!!.slides.power = gamepad2.left_trigger.toDouble()
