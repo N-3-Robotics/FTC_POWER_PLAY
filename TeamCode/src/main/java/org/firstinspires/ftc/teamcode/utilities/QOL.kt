@@ -2,16 +2,18 @@
 package org.firstinspires.ftc.teamcode.utilities
 
 import com.acmerobotics.dashboard.config.Config
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.gearRatio
+import org.firstinspires.ftc.teamcode.utilities.QOL.Companion.rpmToVelocity
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
 class QOL {
     companion object {
-        fun inchesToTicks(meters: Double): Int {
-            return (meters * MotorConstants.GoBilda312.TICKS_PER_INCH).roundToInt()
+        fun inchesToTicks(inches: Number): Int {
+            return (inches.toDouble() * MotorConstants.GoBilda312.TICKS_PER_INCH).roundToInt()
         }
-        fun ticksToInches(ticks: Int): Double {
-            return ticks / MotorConstants.GoBilda312.TICKS_PER_INCH
+        fun ticksToInches(ticks: Number): Double {
+            return ticks.toDouble() / MotorConstants.GoBilda312.TICKS_PER_INCH
         }
         fun calcPower(target: Int, current: Int): Double {
             val p = DriveConstants.drive_kP * (target - current)
@@ -35,6 +37,9 @@ class QOL {
         fun degToRad(degrees: Int): Double {
             return degrees * Math.PI / 180
         }
+        fun rpmToVelocity(rpm: Double): Double {
+            return rpm * gearRatio * MotorConstants.GoBilda312.WHEEL_DIAMETER * Math.PI / 60
+        }
         fun rED(current: Boolean, previous: Boolean): Boolean { // Rising Edge Detector
             return current && !previous
         }
@@ -53,20 +58,37 @@ enum class Direction {
 }
 
 enum class AutoMode {
-    TURN, STRAIGHT, UNKNOWN
+    TURN, STRAIGHT, UNKNOWN, MANUAL
 }
 
 enum class LiftControlType {
     MANUAL, PID
 }
 
-enum class MotorConstants(val TICKS_PER_REV: Double, val WHEEL_DIAMETER: Double, val TICKS_PER_INCH: Double) {
-    GoBilda312(537.7, 96.0 / 25.4, 537.7 / ((96.0 / 25.4) * Math.PI))
+enum class MotorConstants(val MAX_RPM: Double, val TICKS_PER_REV: Double, val WHEEL_DIAMETER: Double, val TICKS_PER_INCH: Double) {
+    GoBilda312(312.0, 537.7, 96.0 / 25.4, 537.7 / ((96.0 / 25.4) * Math.PI))
 }
 @Config()
 object DriveConstants{
     @JvmField
     var tileLength = 24 //inches
+
+    @JvmField
+    var gearRatio = 1.02
+    var WHEEL_RADIUS = MotorConstants.GoBilda312.WHEEL_DIAMETER / 2
+
+    @JvmField
+    var kV = 1.0 / rpmToVelocity(MotorConstants.GoBilda312.MAX_RPM)
+    @JvmField
+    var kA = 0.0
+    @JvmField
+    var kStatic = 0.0
+
+    var MAX_VEL = 50.0
+    var MAX_ACCEL = 45.0
+    var MAX_ANG_VEL = Math.toRadians(310.0)
+    var MAX_ANG_ACCEL = Math.toRadians(60.0)
+
 
     @JvmField
     var drive_kP = 0.04

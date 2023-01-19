@@ -138,6 +138,7 @@ class TeleOP: LinearOpMode() {
             // Drivetrain Control
             ROBOT.gamepadDrive(gamepad1, m)
 
+            telemetry.addData("Robot Pose", ROBOT.currentPose.toString())
             telemetry.addData("Slides Pos", slidesPos)
             telemetry.addData("Slides Reset State", slidesResetState)
             telemetry.addData("Lift State", liftState)

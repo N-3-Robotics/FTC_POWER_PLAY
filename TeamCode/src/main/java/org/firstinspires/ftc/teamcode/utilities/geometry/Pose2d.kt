@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.utilities.geometry
 
-import com.acmerobotics.roadrunner.util.Angle
+import org.firstinspires.ftc.teamcode.utilities.math.Angle
 import org.firstinspires.ftc.teamcode.utilities.math.epsilonEquals
 import kotlin.math.cos
 import kotlin.math.sin

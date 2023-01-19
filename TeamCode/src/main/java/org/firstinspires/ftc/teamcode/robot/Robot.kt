@@ -6,13 +6,14 @@ import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+import org.firstinspires.ftc.teamcode.robot.kinematics.MecanumKinematics
 import org.firstinspires.ftc.teamcode.utilities.AutoMode.*
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.AutoDriveTolerance
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.AutoTurnTolerance
-import org.firstinspires.ftc.teamcode.utilities.DriveConstants.drive_kP
-import org.firstinspires.ftc.teamcode.utilities.DriveConstants.drive_kI
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.drive_kD
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.drive_kI
+import org.firstinspires.ftc.teamcode.utilities.DriveConstants.drive_kP
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.heading_kD
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.heading_kI
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.heading_kP
@@ -24,6 +25,7 @@ import org.firstinspires.ftc.teamcode.utilities.QOL.Companion.radToDeg
 import org.firstinspires.ftc.teamcode.utilities.QOL.Companion.ticksToInches
 import org.firstinspires.ftc.teamcode.utilities.RumbleStrength
 import org.firstinspires.ftc.teamcode.utilities.Side
+import org.firstinspires.ftc.teamcode.utilities.geometry.Pose2d
 import org.firstinspires.ftc.teamcode.utilities.geometry.Vector2d
 import kotlin.math.abs
 
@@ -46,6 +48,12 @@ class Robot(hwMap: HardwareMap?) {
 
     var IMU: BNO055IMU
 
+
+
+    val trackWidth = 12.0
+    val wheelBase = 9.5
+    val lateralMultiplier = 1.1
+
     private var distanceTarget: Double = 0.0
     private var distanceError: Double = 0.0
 
@@ -59,13 +67,18 @@ class Robot(hwMap: HardwareMap?) {
 
     private var headingCorrection: Double = 0.0
 
-    private var lastAngle: Double = botHeading
+    var lastAngle: Double = botHeading
 
-    private var globalAngle: Double = botHeading
+    var globalAngle: Double = botHeading
 
     private var hasBeenRun = true
 
     var autoMode = UNKNOWN
+
+    val currentPose: Pose2d
+        get() {
+            return localiser.poseEstimate
+        }
 
     val currentPosition: Int
         get() {
@@ -137,11 +150,16 @@ class Robot(hwMap: HardwareMap?) {
     var turnPIDController = PIDController(turn_kP, turn_kI, turn_kD)
     var drivePIDController = PIDController(drive_kP, drive_kI, drive_kD)
 
+    val localiser = MecanumLocaliser(this)
+
     private fun tDrive(drive: Double, turn: Double){
         FL.power = drive + turn
         FR.power = drive - turn
         BL.power = drive + turn
         BR.power = drive - turn
+
+        autoMode = MANUAL
+        update()
     }
 
     fun RCDrive(y: Double, x: Double, rx: Double) {
@@ -160,6 +178,9 @@ class Robot(hwMap: HardwareMap?) {
         BL.power = leftBackPower
         FR.power = rightFrontPower
         BR.power = rightBackPower
+
+        autoMode = MANUAL
+        update()
     }
 
     fun FCDrive(y: Double, x: Double, turn: Double) {
@@ -205,9 +226,14 @@ class Robot(hwMap: HardwareMap?) {
 
                     correction = drivePIDController.update(distanceError)
 
+                    localiser.update()
+
                     tDrive(correction, headingCorrection)
                 }
                 stop()
+            }
+            MANUAL -> {
+
             }
         }
     }
@@ -290,6 +316,43 @@ class Robot(hwMap: HardwareMap?) {
             }
         }
     }
+
+    fun getWheelPositions(): List<Double> {
+        val wheelPositions: MutableList<Double> = ArrayList()
+        for (motor in driveMotors) {
+            wheelPositions.add(ticksToInches(motor.currentPosition))
+        }
+        return wheelPositions
+    }
+
+    fun getWheelVelocities(): List<Double>? {
+        val wheelVelocities: MutableList<Double> = ArrayList()
+        for (motor in driveMotors) {
+            wheelVelocities.add(ticksToInches(motor.velocity))
+        }
+        return wheelVelocities
+    }
+
+    fun setDrivePower(drivePower: Pose2d) {
+        val powers = MecanumKinematics.robotToWheelVelocities(
+                drivePower,
+                1.0,
+                1.0,
+                lateralMultiplier
+        )
+        setMotorPowers(powers[0], powers[1], powers[2], powers[3])
+    }
+    private fun setMotorPowers(v: Double, v1: Double, v2: Double, v3: Double) {
+        FL.power = v
+        BL.power = v1
+        BR.power = v2
+        FR.power = v3
+    }
+
+    fun getExternalHeadingVelocity(): Double {
+        return IMU.angularVelocity.zRotationRate.toDouble()
+    }
+
 
     init {
         hardwareMap = hwMap
