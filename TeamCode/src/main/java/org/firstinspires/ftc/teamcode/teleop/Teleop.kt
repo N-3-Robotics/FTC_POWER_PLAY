@@ -34,27 +34,27 @@ object TeleopVariables {
     @JvmField
     var clawOpenPos=0.52
     @JvmField
-    var clawClosePos=0.58
+    var clawClosePos=0.57
     @JvmField
-    var slidesLow=2250
+    var slidesLow=1400
     @JvmField
-    var slidesMid=3750
+    var slidesMid=2600
     @JvmField
-    var slidesHigh=5000
+    var slidesHigh=3650
     @JvmField
     var slidesDown=0
     @JvmField
-    var cone5 = 700 //1400 remove
+    var cone5 = 400 //1400 remove
     @JvmField
-    var cone4 = 500 //1200 remove
+    var cone4 = 300 //1200 remove
     @JvmField
-    var cone3 = 300 //1000 remove
+    var cone3 = 200 //1000 remove
     @JvmField
     var cone2 = 100 //800 remove
     @JvmField
     var cone1 = 0 //300 remove
     @JvmField
-    var slidesAboveGround = 500
+    var slidesAboveGround = 300
     @JvmField
     var slidePower = -1.0
 }
