@@ -34,7 +34,7 @@ object TeleopVariables {
     @JvmField
     var clawOpenPos=0.52
     @JvmField
-    var clawClosePos=0.57
+    var clawClosePos=0.6
     @JvmField
     var slidesLow=1400
     @JvmField
@@ -66,7 +66,6 @@ class OurTeleOp : LinearOpMode() {
         const val half: Double = 0.5
         const val why: Double = 0.25
     }
-    private var robotConfig: RobotConfig?=null
     private var vars: VariableStuff?=null
 
     private enum class LiftState {
@@ -79,7 +78,7 @@ class OurTeleOp : LinearOpMode() {
         var telemetry=MultipleTelemetry(telemetry, dashboard.telemetry)
         telemetry.addLine("Robot has been turned on. Run for your life!")
         telemetry.update()
-        robotConfig=RobotConfig(hardwareMap)
+        val robotConfig=RobotConfig(hardwareMap)
         vars= VariableStuff
 
         /*** controller settings  */
@@ -95,8 +94,8 @@ class OurTeleOp : LinearOpMode() {
             rumble2("both",1.0, 100)
         }
 
-        robotConfig!!.slides.mode=DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        robotConfig!!.slides.mode=DcMotor.RunMode.RUN_USING_ENCODER
+        robotConfig.slides.mode=DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        robotConfig.slides.mode=DcMotor.RunMode.RUN_USING_ENCODER
         var liftState=LiftState.MANUAL
         var slideHeight=0
         var coneGrabbed = false
@@ -113,14 +112,14 @@ class OurTeleOp : LinearOpMode() {
             lastTime=currentSystemTime
 
             /*** bulk read stuff ***/
-            var slideResetState=robotConfig!!.slidesReset.state
-            val slidesEncoderPos=robotConfig!!.slides.currentPosition
+            var slideResetState=robotConfig.slidesReset.state
+            val slidesEncoderPos=robotConfig.slides.currentPosition
             if (slidesEncoderPos < 750){
-                val distanceToCone = robotConfig!!.cone.getDistance(DistanceUnit.INCH)
+                val distanceToCone = robotConfig.cone.getDistance(DistanceUnit.INCH)
                 telemetry.addData("Distance to cone", distanceToCone)
                 /**** Auto-gripping control ***/
                 if (distanceToCone < 2.3 && slidesEncoderPos < 500) {
-                    robotConfig!!.claw.position = clawClosePos
+                    robotConfig.claw.position = clawClosePos
                     coneGrabbed = true
                 } else {
                     coneGrabbed = false
@@ -132,33 +131,33 @@ class OurTeleOp : LinearOpMode() {
                 LiftState.MANUAL -> if (gamepad2.circle || gamepad2.square || gamepad2.triangle || gamepad2.cross || coneGrabbed) {
                     liftState = LiftState.AUTO
                 } else if (!lastliftState && slideResetState) { //check if reset switch is triggered (need to check if it was not triggered last time)
-                    robotConfig!!.slides.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                    robotConfig.slides.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
                 } else if (abs(slidesEncoderPos) > 5300 ) {
-                    robotConfig!!.slides.power = gamepad2.left_trigger.toDouble()
+                    robotConfig.slides.power = gamepad2.left_trigger.toDouble()
                 }
                 else {
-                    robotConfig!!.slides.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                    robotConfig!!.slides.power =
+                    robotConfig.slides.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                    robotConfig.slides.power =
                         gamepad2.right_trigger.toDouble() - gamepad2.left_trigger.toDouble()
                 }
                 LiftState.AUTO -> if (gamepad2.cross){
                     slideHeight = slidesDown
-                    robotConfig!! slidesGo down withPower some
+                    robotConfig slidesGo down withPower some
                 }
                 else if (gamepad2.triangle){
                     slideHeight = slidesHigh
-                    robotConfig!! slidesGo high withPower some
+                    robotConfig slidesGo high withPower some
                 }
                 else if (gamepad2.square){
                     slideHeight = slidesMid
-                    robotConfig!! slidesGo mid withPower some
+                    robotConfig slidesGo mid withPower some
                 }
                 else if (gamepad2.circle){
                     slideHeight = slidesLow
-                    robotConfig!! slidesGo low withPower some
+                    robotConfig slidesGo low withPower some
                 }
                 else if (coneGrabbed){
-                    robotConfig!! slidesGo aboveGround withPower max
+                    robotConfig slidesGo aboveGround withPower max
                 }
                 else if (gamepad2.ps || gamepad2.right_trigger.toDouble() > 0.25 || gamepad2.left_trigger.toDouble() > 0.25)
                 {
@@ -172,11 +171,11 @@ class OurTeleOp : LinearOpMode() {
             /***** claw control ****/
             when {
                 gamepad2.right_bumper ->{
-                    robotConfig!!.claw.position= clawClosePos
+                    robotConfig.claw.position= clawClosePos
                     coneGrabbed = false
                 }
                 gamepad2.left_bumper ->{
-                    robotConfig!!.claw.position= clawOpenPos
+                    robotConfig.claw.position= clawOpenPos
                     coneGrabbed = false
                 }
             }
@@ -205,19 +204,19 @@ class OurTeleOp : LinearOpMode() {
             var drive=-gamepad1.left_stick_y.toDouble()
             var strafe=-gamepad1.right_stick_x.toDouble()
             var rotate=-gamepad1.left_stick_x.toDouble()
-            robotConfig!!.bl.power=m1*(drive+rotate-strafe)
-            robotConfig!!.br.power=m1*(drive-rotate+strafe)
-            robotConfig!!.fr.power=m1*(drive+rotate+strafe)
-            robotConfig!!.fl.power=m1*(drive-rotate-strafe)
+            robotConfig.bl.power=m1*(drive+rotate-strafe)
+            robotConfig.br.power=m1*(drive-rotate+strafe)
+            robotConfig.fr.power=m1*(drive+rotate+strafe)
+            robotConfig.fl.power=m1*(drive-rotate-strafe)
 
             /**************** Telemetry Stuff *****************/
             /* telemetry.addData("ry", gamepad1.right_stick_y); //use when motor connections/commands messed up
             telemetry.addData("rx", gamepad1.right_stick_x);
             telemetry.addData("lx", gamepad1.left_stick_x);
-            telemetry.addData("fl", robotConfig!!.fl.power);
-            telemetry.addData("bl", robotConfig!!.bl.power);
-            telemetry.addData("fr", robotConfig!!.fr.power);
-            telemetry.addData("br", robotConfig!!.br.power);
+            telemetry.addData("fl", robotConfig.fl.power);
+            telemetry.addData("bl", robotConfig.bl.power);
+            telemetry.addData("fr", robotConfig.fr.power);
+            telemetry.addData("br", robotConfig.br.power);
             telemetry.addData("br", robotConfig.br.getCurrentPosition());
             telemetry.addData("fr", robotConfig.fr.getCurrentPosition()); */
             //telemetry.addLine("Random Stuff \n")

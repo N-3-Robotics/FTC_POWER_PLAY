@@ -21,12 +21,27 @@ object MeepMeepTesting {
                     12.0) // Option: Set theme. Default = ColorSchemeRedDark()
                 .setColorScheme(ColorSchemeRedDark()).followTrajectorySequence { drive ->
                     drive.trajectorySequenceBuilder(Pose2d(-36.0, -66.0, Math.toRadians(90.0))) //-35, -65, 90
-                        .splineTo(Vector2d(-29.0, -28.0), Math.toRadians(45.0))
-                        .back(7.0)
-                        .lineToLinearHeading(Pose2d(-46.0, -12.0, Math.toRadians(180.0)))
-                        .lineTo(Vector2d(-65.0, -12.0))
-                        .lineTo(Vector2d(-55.0, -12.0))
-                        .lineToLinearHeading(Pose2d(-54.0, -21.0, Math.toRadians(-45.0)))
+                        .lineTo(Vector2d(-67.0, -18.0))
+                        .UNSTABLE_addDisplacementMarkerOffset(0.0){
+                        }
+                        .UNSTABLE_addTemporalMarkerOffset(0.2){
+
+                        }
+                        .waitSeconds(.2)
+                        .lineTo(Vector2d(-57.0, -12.0))
+                        .lineToLinearHeading(Pose2d(-56.0, -25.0, Math.toRadians(-45.0)))
+                        .UNSTABLE_addDisplacementMarkerOffset(0.0){
+                        }
+                            //loop 3
+                        .lineToLinearHeading(Pose2d(-67.0, -18.0, Math.toRadians(180.0)))
+                        .UNSTABLE_addDisplacementMarkerOffset(0.0){
+                        }.UNSTABLE_addTemporalMarkerOffset(0.2){
+                        }
+                        .waitSeconds(0.2)
+                        .lineTo(Vector2d(-57.0, -12.0))
+                        .lineToLinearHeading(Pose2d(-56.0, -25.0, Math.toRadians(-45.0)))
+                        .UNSTABLE_addDisplacementMarkerOffset(0.0){
+                        }
 /*                        .lineTo(Vector2d(-50.0, -42.0))
                         .lineToLinearHeading(Pose2d(-64.0, -12.0, Math.toRadians(180.0)))
                         .lineToLinearHeading(Pose2d(-52.0, -20.0, Math.toRadians(-45.0)))

@@ -1,10 +1,8 @@
 @file:Suppress("unused", "NAME_SHADOWING")
 package org.firstinspires.ftc.teamcode.utilities
 
-import com.acmerobotics.roadrunner.geometry.Pose2d
 import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.lynx.LynxModule
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.teamcode.utilities.DriveConstants.strafeMultiplier
@@ -14,7 +12,7 @@ import kotlin.math.max
 import kotlin.math.sin
 
 
-class RobotConfig(hwMap: HardwareMap?, val startingSide: Side) {
+class RobotConfig(hwMap: HardwareMap?) {
     var fl: DcMotorEx
     var fr: DcMotorEx
     var bl: DcMotorEx
@@ -26,18 +24,9 @@ class RobotConfig(hwMap: HardwareMap?, val startingSide: Side) {
     var slidesReset: DigitalChannel
     var IMU: BNO055IMU
 
-    var xLeft: ModernRoboticsI2cRangeSensor
-    var xRight: ModernRoboticsI2cRangeSensor
-    var y: ModernRoboticsI2cRangeSensor
-
-    val track_width = 12.0
-    val wheelbase = 9.5
-
-    val localiser: Localiser
-
-    val currentPosition: Pose2d
+    val currentPosition: Int
         get() {
-            return localiser.currentPose
+            return (fl.currentPosition + fr.currentPosition + bl.currentPosition + br.currentPosition) / 4
         }
 
     val botHeading: Float
@@ -129,12 +118,6 @@ class RobotConfig(hwMap: HardwareMap?, val startingSide: Side) {
         slides = hardwareMap!!.get(DcMotorEx::class.java, "slides")
         cone = hardwareMap!!.get(Rev2mDistanceSensor::class.java, "cone")
         slidesReset = hardwareMap!!.get(DigitalChannel::class.java, "slidesReset")
-
-        xLeft = hardwareMap!!.get(ModernRoboticsI2cRangeSensor::class.java, "xLeft")
-        xRight = hardwareMap!!.get(ModernRoboticsI2cRangeSensor::class.java, "xRight")
-        y = hardwareMap!!.get(ModernRoboticsI2cRangeSensor::class.java, "y")
-
-        localiser = Localiser(this, if (startingSide == Side.LEFT) xLeft else xRight, y)
 
 
         fl.direction = DcMotorSimple.Direction.REVERSE
