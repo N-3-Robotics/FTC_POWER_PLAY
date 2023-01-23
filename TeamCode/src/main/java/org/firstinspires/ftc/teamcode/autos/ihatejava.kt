@@ -66,10 +66,10 @@ class ihatejava : LinearOpMode() {
         val dashboard= FtcDashboard.getInstance()
         val drive = SampleMecanumDrive(hardwareMap)
         fun closeClaw(claw: Servo = drive.claw) {
-            claw.position = DriveConstants.ClawClose
+            claw.position = ClawClose
         }
         fun openClaw(claw: Servo = drive.claw) {
-            claw.position = DriveConstants.ClawOpen
+            claw.position = ClawOpen
         }
         var telemetry= MultipleTelemetry(telemetry, dashboard.telemetry)
         telemetry.addLine("Robot has been turned on. Run for your life!")
@@ -97,7 +97,7 @@ class ihatejava : LinearOpMode() {
             override fun onError(errorCode: Int) {}
         })
         dashboard.startCameraStream(camera, 30.0)
-        val zone1 = drive.trajectorySequenceBuilder(Pose2d(-36.0, -66.0, Math.toRadians(90.0)))
+        val preload = drive.trajectorySequenceBuilder(Pose2d(-36.0, -66.0, Math.toRadians(90.0)))
             .splineTo(Vector2d(-29.0, -28.0), Math.toRadians(45.0))
             .UNSTABLE_addTemporalMarkerOffset(0.0){
                 drive.claw.position=ClawOpen
@@ -114,100 +114,80 @@ class ihatejava : LinearOpMode() {
                 drive.claw.position=ClawClose
             }
             .UNSTABLE_addTemporalMarkerOffset(0.5){
-                drive.slides.targetPosition= slidesLow
+                drive.slides.targetPosition= slidesLow+200
                 drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
                 drive.slides.power=slidePower
             }
             .build()
-                val loop1=drive.trajectorySequenceBuilder(zone1.end())
+                val loop1=drive.trajectorySequenceBuilder(preload.end())
                     .lineTo(Vector2d(-57.0, -12.0))
-            .lineToLinearHeading(Pose2d(-54.0, -21.0, Math.toRadians(-45.0)))
-                    .UNSTABLE_addDisplacementMarkerOffset(0.0){
+                    .lineToLinearHeading(Pose2d(-54.0, -21.0, Math.toRadians(-45.0)))
+                    .UNSTABLE_addDisplacementMarkerOffset(0.0){ //open claw
                         drive.claw.position = ClawOpen
                     }
-                    .UNSTABLE_addTemporalMarkerOffset(0.5){
+                    .UNSTABLE_addTemporalMarkerOffset(0.5){ //move slides to cone4 level after bit of time, to prevent collision
                         drive.slides.targetPosition= cone4
                         drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
                         drive.slides.power=slidePower
                     }
+                    .lineTo(Vector2d(-57.0, -18.0))
             .lineToLinearHeading(Pose2d(-57.0, -12.0, Math.toRadians(180.0)))
                     .build()
                 val loop2 = drive.trajectorySequenceBuilder(loop1.end())
-                    .lineTo(Vector2d(-67.0, -18.0)) //go to cone stack
+                    .lineTo(Vector2d(-67.0, -14.5)) //go to cone stack
                     .UNSTABLE_addDisplacementMarkerOffset(0.0){ //close claw
                         drive.claw.position = ClawClose
                     }
                     .UNSTABLE_addTemporalMarkerOffset(0.2){ //raise slides
-                        drive.slides.targetPosition= slidesLow+100
+                        drive.slides.targetPosition= slidesLow+200
                         drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
                         drive.slides.power=slidePower
                     }
                     .waitSeconds(.2) //wait a bit for slides to go up to low height
-                    .lineTo(Vector2d(-57.0, -12.0)) //back up a bit from the stack
+                    .lineTo(Vector2d(-57.0, -14.5)) //back up a bit from the stack
                     .lineToLinearHeading(Pose2d(-56.0, -25.0, Math.toRadians(-45.0))) //go to pole while rotating
-                    .UNSTABLE_addDisplacementMarkerOffset(0.0){ //release cone
+                    .UNSTABLE_addDisplacementMarkerOffset(2.5){ //release cone
                         drive.claw.position = ClawOpen
                     }
-                    .UNSTABLE_addTemporalMarkerOffset(0.5){ //lower slides
+                    .forward(1.0) //strafe left a bit from pole
+                    .strafeLeft(2.5)
+                    .back(3.0)
+                    .build()
+              /*  val loop3 = drive.trajectorySequenceBuilder(loop2.end())
+                    .UNSTABLE_addTemporalMarkerOffset(0.4){ //lower slides
                         drive.slides.targetPosition= cone3
                         drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
                         drive.slides.power=slidePower
                     }
-                    .build()
-                val loop3 = drive.trajectorySequenceBuilder(loop2.end())
-                    .lineToLinearHeading(Pose2d(-67.0, -18.0, Math.toRadians(180.0))) //go to stack
+                    .lineToLinearHeading(Pose2d(-57.0, -15.0, Math.toRadians(180.0))) //go to stack
+                    .lineTo(Vector2d(-67.0, -14.5)) //go to cone stack
                     .UNSTABLE_addDisplacementMarkerOffset(0.0){ //wait for claw to close
                         drive.claw.position = ClawClose
                     }.UNSTABLE_addTemporalMarkerOffset(0.2){ //raise slides
-                        drive.slides.targetPosition= slidesLow+100
+                        drive.slides.targetPosition= slidesLow+150
                         drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
                         drive.slides.power=slidePower
                     }
                     .waitSeconds(0.2) //wait for slides to go up a bit
-                    .lineTo(Vector2d(-57.0, -12.0)) //back up a bit from the stack
-                    .lineToLinearHeading(Pose2d(-56.0, -25.0, Math.toRadians(-45.0))) //go to pole while rotating
-                    .UNSTABLE_addDisplacementMarkerOffset(0.0){ //open claw
+                    .lineTo(Vector2d(-57.0, -14.5)) //back up a bit from the stack
+                    .lineToLinearHeading(Pose2d(-55.0, -25.5, Math.toRadians(-45.0))) //go to pole while rotating
+                    .UNSTABLE_addDisplacementMarkerOffset(0.5){ //open claw
                         drive.claw.position = ClawOpen
                     }
-                    .build()
-        val zone2 = drive.trajectorySequenceBuilder(Pose2d(-36.0, -66.0, Math.toRadians(90.0)))
-            .forward(55.0)
-            .addTemporalMarker(1.0) {
-                drive.slides.targetPosition=slidesHigh
-                drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
-                drive.slides.power= slidePower
-            }
-            .turn(Math.toRadians(-45.0))
-            .forward(10.0)
-            .waitSeconds(1.0)
-            .addTemporalMarker(8.0) {
-                openClaw()
-            }
-            .back(10.0)
-            .turn(Math.toRadians(135.0))
-            .forward(25.0)
-            .strafeRight(10.0)
-            .forward(5.0)
-            .addTemporalMarker(12.0){
-                drive.slides.targetPosition= slidesMid
-                drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
-                drive.slides.power= slidePower
-            }
-            .addTemporalMarker(18.0){
-                closeClaw()
-            }
-            .back(5.0)
-            .strafeLeft(18.0)
-            .turn(Math.toRadians(140.0))
-            .forward(10.0)
-            .back(5.0)
-            .turn(Math.toRadians(135.0))
-            .strafeRight(20.0)
+                    .back(5.0) //back up a bit from pole
+                    .build() */
+        val park1 = drive.trajectorySequenceBuilder(loop2.end())
+            .turn(Math.toRadians(35.0))
             .build()
-        val zone3 = drive.trajectorySequenceBuilder(Pose2d(0.0, 0.0, 0.0))
-            .forward(30.0)
-            .strafeRight(20.0)
-            .forward(15.0)
+        val park2 = drive.trajectorySequenceBuilder(loop2.end())
+            .turn(Math.toRadians(35.0))
+            .back(5.0)
+            .lineTo(Vector2d(-35.0, -15.0))
+            .build()
+        val park3 = drive.trajectorySequenceBuilder(loop2.end())
+            .turn(Math.toRadians(35.0))
+            .back(5.0)
+            .lineTo(Vector2d(-10.0, -15.0))
             .build()
 
         /** detect apriltags to get parking spot**/
@@ -253,37 +233,36 @@ class ihatejava : LinearOpMode() {
             telemetry.update()
         }
         /*** wait for start ***/
-        drive.poseEstimate = zone1.start()
+        drive.poseEstimate = preload.start()
         waitForStart()
         drive.slides.targetPosition= slidesMid
         drive.slides.mode= DcMotor.RunMode.RUN_TO_POSITION
         drive.slides.power=slidePower
         sleep(250)
         /*** run paths ***/
-        when(parkingId) {
-            21 -> drive.followTrajectorySequence(zone1)
-            22 -> drive.followTrajectorySequence(zone2)
-            23 -> drive.followTrajectorySequence(zone3)
-        }
+        drive.followTrajectorySequence(preload)
+
         while(drive.isBusy && !isStopRequested){
+            //do nothing
         }
-            while(drive.slides.currentPosition<drive.slides.targetPosition){
-                //do nothing
-            }
         drive.followTrajectorySequence(loop1)
         while(drive.isBusy && !isStopRequested){
-        }
-        while(drive.slides.currentPosition<drive.slides.targetPosition){
             //do nothing
         }
         drive.followTrajectorySequence(loop2)
         while(drive.isBusy && !isStopRequested){
-        }
-        while(drive.slides.currentPosition<drive.slides.targetPosition){
             //do nothing
         }
-        drive.followTrajectorySequence(loop3)
+/*        drive.followTrajectorySequence(loop3)
         while(drive.isBusy && !isStopRequested){
+        }*/
+        when(parkingId) {
+            21 -> drive.followTrajectorySequence(park1)
+            22 -> drive.followTrajectorySequence(park2)
+            23 -> drive.followTrajectorySequence(park3)
+        }
+        while(drive.isBusy && !isStopRequested){
+            //do nothing
         }
     }
 }
