@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidesLow
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidesMid
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.slidesHigh
 import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.clawOpenPos
+import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.parallel
+import org.firstinspires.ftc.teamcode.teleop.TeleopVariables.perpendicular
 import org.firstinspires.ftc.teamcode.utilities.CursedCode.Companion.aboveGround
 import org.firstinspires.ftc.teamcode.utilities.CursedCode.Companion.down
 import org.firstinspires.ftc.teamcode.utilities.CursedCode.Companion.high
@@ -57,6 +59,10 @@ object TeleopVariables {
     var slidesAboveGround = 300
     @JvmField
     var slidePower = -1.0
+    @JvmField
+    var parallel = 0.85
+    @JvmField
+    var perpendicular = 0.52
 }
 @TeleOp(name="Working Teleop", group="TeleOp")
 class OurTeleOp : LinearOpMode() {
@@ -224,6 +230,10 @@ class OurTeleOp : LinearOpMode() {
             telemetry.addData("Slides target", slideHeight)
             telemetry.addData("slides State", liftState)
             telemetry.update()
+
+
+            robotConfig.parallelEncoderServo.position = parallel
+            robotConfig.perpendicularEncoderServo.position = perpendicular
 
         }
     }
