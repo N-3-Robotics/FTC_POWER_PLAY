@@ -1,19 +1,19 @@
-package org.firstinspires.ftc.teamcode.drive.opmode;
+package org.firstinspires.ftc.teamcode.drive.opmode
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.util.Angle;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.MovingStatistics;
-import com.qualcomm.robotcore.util.RobotLog;
-
-import org.firstinspires.ftc.robotcore.internal.system.Misc;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
+import com.acmerobotics.dashboard.config.Config
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.acmerobotics.roadrunner.util.Angle.norm
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import kotlin.Throws
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer
+import com.qualcomm.robotcore.util.RobotLog
+import com.qualcomm.robotcore.util.MovingStatistics
+import org.firstinspires.ftc.teamcode.drive.opmode.TrackingWheelForwardOffsetTuner
+import org.firstinspires.ftc.robotcore.internal.system.Misc
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
+import org.firstinspires.ftc.teamcode.teleop.TeleopVariables
 
 /**
  * This routine determines the effective forward offset for the lateral tracking wheel.
@@ -36,69 +36,57 @@ import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
  */
 @Config
 @Disabled
-@Autonomous(group="drive")
-public class TrackingWheelForwardOffsetTuner extends LinearOpMode {
-    public static double ANGLE = 180; // deg
-    public static int NUM_TRIALS = 5;
-    public static int DELAY = 1000; // ms
-
-    @Override
-    public void runOpMode() throws InterruptedException {
-
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-
-        if (!(drive.getLocalizer() instanceof StandardTrackingWheelLocalizer)) {
-            RobotLog.setGlobalErrorMsg("StandardTrackingWheelLocalizer is not being set in the "
-                    + "drive class. Ensure that \"setLocalizer(new StandardTrackingWheelLocalizer"
-                    + "(hardwareMap));\" is called in SampleMecanumDrive.java");
+@Autonomous(group = "drive")
+class TrackingWheelForwardOffsetTuner : LinearOpMode() {
+    @Throws(InterruptedException::class)
+    override fun runOpMode() {
+        val drive = SampleMecanumDrive(hardwareMap)
+        /*drive.parallelEncoderServo.position = TeleopVariables.parallel
+        drive.perpendicularEncoderServo.position = TeleopVariables.perpendicular
+        */if (drive.localizer !is StandardTrackingWheelLocalizer) {
+            RobotLog.setGlobalErrorMsg("StandardTrackingWheelLocalizer is not being set in the " + "drive class. Ensure that \"setLocalizer(new StandardTrackingWheelLocalizer" + "(hardwareMap));\" is called in SampleMecanumDrive.java")
         }
-
-        telemetry.addLine("Press play to begin the forward offset tuner");
-        telemetry.addLine("Make sure your robot has enough clearance to turn smoothly");
-        telemetry.update();
-
-        waitForStart();
-
-        if (isStopRequested()) return;
-
-        telemetry.clearAll();
-        telemetry.addLine("Running...");
-        telemetry.update();
-
-        MovingStatistics forwardOffsetStats = new MovingStatistics(NUM_TRIALS);
-        for (int i = 0; i < NUM_TRIALS; i++) {
-            drive.setPoseEstimate(new Pose2d());
+        telemetry.addLine("Press play to begin the forward offset tuner")
+        telemetry.addLine("Make sure your robot has enough clearance to turn smoothly")
+        telemetry.update()
+        waitForStart()
+        if (isStopRequested) return
+        telemetry.clearAll()
+        telemetry.addLine("Running...")
+        telemetry.update()
+        val forwardOffsetStats = MovingStatistics(NUM_TRIALS)
+        for (i in 0 until NUM_TRIALS) {
+            drive.poseEstimate = Pose2d()
 
             // it is important to handle heading wraparounds
-            double headingAccumulator = 0;
-            double lastHeading = 0;
-
-            drive.turnAsync(Math.toRadians(ANGLE));
-
-            while (!isStopRequested() && drive.isBusy()) {
-                double heading = drive.getPoseEstimate().getHeading();
-                headingAccumulator += Angle.norm(heading - lastHeading);
-                lastHeading = heading;
-
-                drive.update();
+            var headingAccumulator = 0.0
+            var lastHeading = 0.0
+            drive.turnAsync(Math.toRadians(ANGLE))
+            while (!isStopRequested && drive.isBusy) {
+                val heading = drive.poseEstimate.heading
+                headingAccumulator += norm(heading - lastHeading)
+                lastHeading = heading
+                drive.update()
             }
-
-            double forwardOffset = StandardTrackingWheelLocalizer.FORWARD_OFFSET +
-                    drive.getPoseEstimate().getY() / headingAccumulator;
-            forwardOffsetStats.add(forwardOffset);
-
-            sleep(DELAY);
+            val forwardOffset =
+                StandardTrackingWheelLocalizer.FORWARD_OFFSET + drive.poseEstimate.y / headingAccumulator
+            forwardOffsetStats.add(forwardOffset)
+            sleep(DELAY.toLong())
         }
-
-        telemetry.clearAll();
-        telemetry.addLine("Tuning complete");
+        telemetry.clearAll()
+        telemetry.addLine("Tuning complete")
         telemetry.addLine(Misc.formatInvariant("Effective forward offset = %.2f (SE = %.3f)",
-                forwardOffsetStats.getMean(),
-                forwardOffsetStats.getStandardDeviation() / Math.sqrt(NUM_TRIALS)));
-        telemetry.update();
-
-        while (!isStopRequested()) {
-            idle();
+            forwardOffsetStats.mean,
+            forwardOffsetStats.standardDeviation / Math.sqrt(NUM_TRIALS.toDouble())))
+        telemetry.update()
+        while (!isStopRequested) {
+            idle()
         }
+    }
+
+    companion object {
+        var ANGLE = 180.0 // deg
+        var NUM_TRIALS = 5
+        var DELAY = 1000 // ms
     }
 }

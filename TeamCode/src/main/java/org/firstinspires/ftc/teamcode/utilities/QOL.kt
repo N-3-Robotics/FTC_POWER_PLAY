@@ -14,7 +14,7 @@ class QOL {
             return ticks / MotorConstants.GoBilda312.TICKS_PER_CENTIMETER
         }
         fun calcPower(target: Int, current: Int): Double {
-            val p = DriveConstants.drive_kP * (target - current)
+            val p = AJDriveConstants.drive_kP * (target - current)
             val power = 2 * (1 / (1 + Math.E.pow(-p))) - 1
             return if (power > 0.1) {
                 0.2
@@ -26,7 +26,7 @@ class QOL {
             return 0.3 * (target - current)
         }
         fun calcTurnPower(target: Double, current: Double): Double {
-            val p = DriveConstants.turn_kP * (target - current)
+            val p = AJDriveConstants.turn_kP * (target - current)
             return 2 * (1 / (1 + Math.E.pow(-p))) - 1
         }
         fun radToDeg(radians: Float): Double {
@@ -53,7 +53,7 @@ enum class MotorConstants(val TICKS_PER_REV: Double, val WHEEL_DIAMETER: Double,
     GoBilda312(537.7, 96.0 / 1000.0, 537.7 / ((96.0 / 10) * Math.PI))
 }
 @Config()
-object DriveConstants{
+object AJDriveConstants{
     @JvmField
     var tileLength = 24 //inches
 

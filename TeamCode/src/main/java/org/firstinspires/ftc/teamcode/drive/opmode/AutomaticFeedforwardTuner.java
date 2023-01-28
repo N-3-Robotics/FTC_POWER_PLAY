@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.internal.system.Misc;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.teleop.TeleopVariables;
 import org.firstinspires.ftc.teamcode.util.LoggingUtil;
 import org.firstinspires.ftc.teamcode.util.RegressionUtil;
 
@@ -53,7 +54,8 @@ public class AutomaticFeedforwardTuner extends LinearOpMode {
 
         telemetry.addLine("Press play to begin the feedforward tuning routine");
         telemetry.update();
-
+        drive.parallelEncoderServo.setPosition(TeleopVariables.parallel);
+        drive.perpendicularEncoderServo.setPosition(TeleopVariables.perpendicular);
         waitForStart();
 
         if (isStopRequested()) return;

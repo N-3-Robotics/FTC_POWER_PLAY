@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.teleop.TeleopVariables;
 
 import java.util.Objects;
 
@@ -72,9 +73,10 @@ public class ManualFeedforwardTuner extends LinearOpMode {
 
 
         drive = new SampleMecanumDrive(hardwareMap);
-
+        drive.parallelEncoderServo.setPosition(TeleopVariables.parallel);
+        drive.perpendicularEncoderServo.setPosition(TeleopVariables.perpendicular);
         mode = Mode.TUNING_MODE;
-
+        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
         NanoClock clock = NanoClock.system();
 
         telemetry.addLine("Ready!");

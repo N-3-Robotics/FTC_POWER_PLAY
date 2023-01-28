@@ -5,7 +5,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor
 import com.qualcomm.robotcore.hardware.*
-import org.firstinspires.ftc.teamcode.utilities.DriveConstants.strafeMultiplier
+import org.firstinspires.ftc.teamcode.utilities.AJDriveConstants.strafeMultiplier
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.max
@@ -23,6 +23,9 @@ class RobotConfig(hwMap: HardwareMap?) {
     var cone: Rev2mDistanceSensor
     var slidesReset: DigitalChannel
     var IMU: BNO055IMU
+
+    var parallelEncoderServo: Servo
+    var perpendicularEncoderServo: Servo
 
     val currentPosition: Int
         get() {
@@ -119,6 +122,8 @@ class RobotConfig(hwMap: HardwareMap?) {
         cone = hardwareMap!!.get(Rev2mDistanceSensor::class.java, "cone")
         slidesReset = hardwareMap!!.get(DigitalChannel::class.java, "slidesReset")
 
+        parallelEncoderServo = hardwareMap!!.get(Servo::class.java, "parallel")
+        perpendicularEncoderServo = hardwareMap!!.get(Servo::class.java, "perpendicular")
 
         fl.direction = DcMotorSimple.Direction.REVERSE
         bl.direction = DcMotorSimple.Direction.REVERSE

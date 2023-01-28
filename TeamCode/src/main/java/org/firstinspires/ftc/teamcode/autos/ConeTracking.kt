@@ -57,7 +57,7 @@ class RedConeTracking: LinearOpMode(){
     }
 }
 
-
+@Disabled
 @Autonomous(name = "Blue Cone Tracking")
 class BlueConeTracking: LinearOpMode(){
 

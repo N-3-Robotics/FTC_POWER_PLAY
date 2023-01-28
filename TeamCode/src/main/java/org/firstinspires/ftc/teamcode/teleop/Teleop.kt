@@ -38,7 +38,7 @@ object TeleopVariables {
     @JvmField
     var clawClosePos=0.6
     @JvmField
-    var slidesLow=1400
+    var slidesLow=1550
     @JvmField
     var slidesMid=2600
     @JvmField
@@ -60,9 +60,9 @@ object TeleopVariables {
     @JvmField
     var slidePower = -1.0
     @JvmField
-    var parallel = 0.85
+    var parallel = 0.39
     @JvmField
-    var perpendicular = 0.52
+    var perpendicular = 0.55
 }
 @TeleOp(name="Working Teleop", group="TeleOp")
 class OurTeleOp : LinearOpMode() {
@@ -105,6 +105,7 @@ class OurTeleOp : LinearOpMode() {
         var liftState=LiftState.MANUAL
         var slideHeight=0
         var coneGrabbed = false
+        var notDriverControl = true
         waitForStart()
 
 
@@ -124,7 +125,7 @@ class OurTeleOp : LinearOpMode() {
                 val distanceToCone = robotConfig.cone.getDistance(DistanceUnit.INCH)
                 telemetry.addData("Distance to cone", distanceToCone)
                 /**** Auto-gripping control ***/
-                if (distanceToCone < 2.3 && slidesEncoderPos < 500) {
+                if (distanceToCone < 2.3 && slidesEncoderPos < 500 && notDriverControl) {
                     robotConfig.claw.position = clawClosePos
                     coneGrabbed = true
                 } else {
@@ -136,7 +137,7 @@ class OurTeleOp : LinearOpMode() {
             when(liftState) {
                 LiftState.MANUAL -> if (gamepad2.circle || gamepad2.square || gamepad2.triangle || gamepad2.cross || coneGrabbed) {
                     liftState = LiftState.AUTO
-                } else if (!lastliftState && slideResetState) { //check if reset switch is triggered (need to check if it was not triggered last time)
+                } else if (lastliftState && !slideResetState) { //check if reset switch is triggered (need to check if it was not triggered last time)
                     robotConfig.slides.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
                 } else if (abs(slidesEncoderPos) > 5300 ) {
                     robotConfig.slides.power = gamepad2.left_trigger.toDouble()
@@ -148,18 +149,22 @@ class OurTeleOp : LinearOpMode() {
                 }
                 LiftState.AUTO -> if (gamepad2.cross){
                     slideHeight = slidesDown
+                    robotConfig.slides.mode = DcMotor.RunMode.RUN_USING_ENCODER
                     robotConfig slidesGo down withPower some
                 }
-                else if (gamepad2.triangle){
+                else if (gamepad2.circle){
                     slideHeight = slidesHigh
+                    robotConfig.slides.mode = DcMotor.RunMode.RUN_USING_ENCODER
                     robotConfig slidesGo high withPower some
                 }
-                else if (gamepad2.square){
+                else if (gamepad2.triangle){
                     slideHeight = slidesMid
+                    robotConfig.slides.mode = DcMotor.RunMode.RUN_USING_ENCODER
                     robotConfig slidesGo mid withPower some
                 }
-                else if (gamepad2.circle){
+                else if (gamepad2.square){
                     slideHeight = slidesLow
+                    robotConfig.slides.mode = DcMotor.RunMode.RUN_USING_ENCODER
                     robotConfig slidesGo low withPower some
                 }
                 else if (coneGrabbed){
@@ -184,6 +189,8 @@ class OurTeleOp : LinearOpMode() {
                     robotConfig.claw.position= clawOpenPos
                     coneGrabbed = false
                 }
+                gamepad2.dpad_up -> notDriverControl=false
+                gamepad2.dpad_down -> notDriverControl=true
             }
 
             /***************** drive stuff beneath here  */
@@ -229,11 +236,9 @@ class OurTeleOp : LinearOpMode() {
             telemetry.addData("slides position", slidesEncoderPos)
             telemetry.addData("Slides target", slideHeight)
             telemetry.addData("slides State", liftState)
+            telemetry.addData("Slides reset switch", slideResetState)
             telemetry.update()
 
-
-            robotConfig.parallelEncoderServo.position = parallel
-            robotConfig.perpendicularEncoderServo.position = perpendicular
 
         }
     }

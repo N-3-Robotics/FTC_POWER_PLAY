@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.utilities.*
-import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawClose
-import org.firstinspires.ftc.teamcode.utilities.DriveConstants.ClawOpen
+import org.firstinspires.ftc.teamcode.utilities.AJDriveConstants.ClawClose
+import org.firstinspires.ftc.teamcode.utilities.AJDriveConstants.ClawOpen
 
 @Disabled
 @TeleOp(name = "NOT A TeleOp")
@@ -48,7 +48,7 @@ class NOTTeleOP: LinearOpMode() {
 
             ROBOT!!.gamepadDrive(gamepad1, 1.0)
 
-            ROBOT!!.slides.power = gamepad2.right_stick_y.toDouble() * DriveConstants.SlidesSpeed
+            ROBOT!!.slides.power = gamepad2.right_stick_y.toDouble() * AJDriveConstants.SlidesSpeed
 
             // setup the claw motor to open and close
             when {

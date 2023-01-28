@@ -1,15 +1,13 @@
-package org.firstinspires.ftc.teamcode.drive.opmode;
+package org.firstinspires.ftc.teamcode.drive.opmode
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import com.acmerobotics.dashboard.config.Config
+import com.acmerobotics.roadrunner.geometry.Pose2d
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive
+import kotlin.Throws
+import org.firstinspires.ftc.teamcode.drive.opmode.StraightTest
 
 /*
  * This is a simple routine to test translational drive capabilities.
@@ -17,30 +15,23 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 @Config
 @Disabled
 @Autonomous(group = "drive")
-public class StraightTest extends LinearOpMode {
-    public static double DISTANCE = 60; // in
+class StraightTest : LinearOpMode() {
+    @Throws(InterruptedException::class)
+    override fun runOpMode() {
+        val drive = SampleMecanumDrive(hardwareMap)
+        val trajectory = drive.trajectoryBuilder(Pose2d()).forward(DISTANCE).build()
+        waitForStart()
+        if (isStopRequested) return
+        drive.followTrajectory(trajectory)
+        val (x, y, heading) = drive.poseEstimate
+        telemetry.addData("finalX", x)
+        telemetry.addData("finalY", y)
+        telemetry.addData("finalHeading", heading)
+        telemetry.update()
+        while (!isStopRequested && opModeIsActive());
+    }
 
-    @Override
-    public void runOpMode() throws InterruptedException {
-
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-
-        Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
-                .forward(DISTANCE)
-                .build();
-
-        waitForStart();
-
-        if (isStopRequested()) return;
-
-        drive.followTrajectory(trajectory);
-
-        Pose2d poseEstimate = drive.getPoseEstimate();
-        telemetry.addData("finalX", poseEstimate.getX());
-        telemetry.addData("finalY", poseEstimate.getY());
-        telemetry.addData("finalHeading", poseEstimate.getHeading());
-        telemetry.update();
-
-        while (!isStopRequested() && opModeIsActive()) ;
+    companion object {
+        var DISTANCE = 60.0 // in
     }
 }
